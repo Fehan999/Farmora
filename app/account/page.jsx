@@ -13,7 +13,8 @@ import { money } from "@/lib/format";
 function Account() {
   const { user, updateUser } = useAuth();
   const { wishlist, toast } = useShop();
-  const { data: orders } = useData(() => getOrdersForBuyer(user.uid), [user.uid]);
+  const isAdmin = user.role === "admin";
+  const { data: orders } = useData(() => (isAdmin ? Promise.resolve([]) : getOrdersForBuyer(user.uid)), [user.uid, isAdmin]);
   const [form, setForm] = useState({ name: user.name || "", phone: user.phone || "", location: user.location || "", bio: user.bio || "" });
 
   async function save(e) {
@@ -31,14 +32,23 @@ function Account() {
           <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-brand-100 text-3xl font-bold text-brand-700">{user.name?.[0]}</div>
           <h2 className="mt-3 text-lg font-bold">{user.name}</h2>
           <p className="text-sm text-gray-500">{user.email}</p>
-          <span className="badge mt-2 bg-brand-50 capitalize text-brand-700">{user.role}</span>
+          <span className={`badge mt-2 capitalize ${isAdmin ? "bg-purple-100 text-purple-700" : "bg-brand-50 text-brand-700"}`}>{isAdmin ? "Administrator" : user.role}</span>
           {user.demo && <p className="mt-2 text-xs text-amber-600">Demo session</p>}
         </div>
-        <StatCard icon="📦" label="Orders" value={orders?.length ?? "—"} />
-        <StatCard icon="💰" label="Total spent" value={money(spent)} tone="earth" />
-        <StatCard icon="♡" label="Wishlist" value={wishlist.length} tone="rose" />
-        {user.role === "farmer" && <Link href="/farmer/dashboard" className="btn-primary w-full">Go to farmer dashboard</Link>}
-        {user.role === "admin" && <Link href="/admin" className="btn-primary w-full">Go to admin dashboard</Link>}
+        {isAdmin ? (
+          <div className="card space-y-3 p-6 text-sm">
+            <p className="font-semibold">Marketplace admin</p>
+            <p className="text-gray-500">Track platform earnings, manage products, users and farmers from the admin dashboard.</p>
+            <Link href="/admin" className="btn-primary w-full">Go to admin dashboard</Link>
+          </div>
+        ) : (
+          <>
+            <StatCard icon="📦" label="Orders" value={orders?.length ?? "—"} />
+            <StatCard icon="💰" label="Total spent" value={money(spent)} tone="earth" />
+            <StatCard icon="♡" label="Wishlist" value={wishlist.length} tone="rose" />
+            {user.role === "farmer" && <Link href="/farmer/dashboard" className="btn-primary w-full">Go to farmer dashboard</Link>}
+          </>
+        )}
       </div>
       <form onSubmit={save} className="card h-fit space-y-4 p-6">
         <h2 className="text-lg font-semibold">Profile settings</h2>

@@ -13,8 +13,8 @@ import useData from "@/components/useData";
 import { useAuth } from "@/context/AuthContext";
 import { useShop } from "@/context/ShopContext";
 import { getProducts, getOrdersForFarmer, saveProduct, removeProduct } from "@/lib/db";
-import { revenueByDay } from "@/lib/stats";
-import { money, date } from "@/lib/format";
+import { valueByDay, FEE_PCT, PAYOUT_PCT } from "@/lib/stats";
+import { money, date, commissionOf } from "@/lib/format";
 import { CATEGORIES } from "@/data/seed";
 
 const TABS = [
@@ -39,10 +39,13 @@ function Dashboard() {
 
   const products = data?.products || [];
   const orders = data?.orders || [];
-  const myLines = (o) => o.items.filter((i) => i.farmerId === farmerId);
-  const myRevenue = (o) => myLines(o).reduce((s, i) => s + i.price * i.qty, 0);
-  const revenue = orders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + myRevenue(o), 0);
-  const chart = useMemo(() => revenueByDay(orders.map((o) => ({ ...o, total: myRevenue(o) }))), [orders]);
+  const myLines = (o) => (o.items || []).filter((i) => i.farmerId === farmerId);
+  const myGross = (o) => myLines(o).reduce((s, i) => s + i.price * i.qty, 0);
+  const myNet = (o) => myGross(o) - commissionOf(myGross(o));
+  const gross = orders.filter((o) => o.status !== "cancelled").reduce((s, o) => s + myGross(o), 0);
+  const fee = commissionOf(gross);
+  const lowStock = products.filter((p) => p.stock < 20).length;
+  const chart = useMemo(() => valueByDay(orders, myNet), [orders, farmerId]);
 
   async function save(p) {
     await saveProduct({ ...p, farmerId, farmerName: user.farmName || user.name, status: p.status || "approved", rating: p.rating || 5, reviewsCount: p.reviewsCount || 0, sold: p.sold || 0 });
@@ -71,14 +74,17 @@ function Dashboard() {
         <>
           {tab === "overview" && (
             <div className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <StatCard icon="💰" label="Revenue" value={money(revenue)} hint="All time" />
-                <StatCard icon="📦" label="Orders" value={orders.length} tone="blue" />
-                <StatCard icon="🥕" label="Products" value={products.length} tone="earth" />
-                <StatCard icon="⚠️" label="Low stock" value={products.filter((p) => p.stock < 20).length} tone="rose" hint="Under 20 units" />
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <StatCard icon="🧾" label="Gross sales" value={money(gross)} tone="blue" hint="Product value of your sales" />
+                <StatCard icon="🏷️" label={`Platform fee (${FEE_PCT}%)`} value={money(fee)} tone="rose" hint="Farmora commission" />
+                <StatCard icon="💰" label={`Net earnings (${PAYOUT_PCT}%)`} value={money(gross - fee)} hint="What you take home" />
+                <StatCard icon="📦" label="Orders" value={orders.length} tone="blue" hint={`${orders.filter((o) => o.status === "cancelled").length} cancelled`} />
+                <StatCard icon="🥕" label="Products" value={products.length} tone="earth" hint={`${products.filter((p) => (p.status || "approved") === "approved").length} live`} />
+                <StatCard icon="⚠️" label="Low stock" value={lowStock} tone="rose" hint="Under 20 units" />
               </div>
               <div className="card p-6">
-                <h3 className="mb-4 font-semibold">Revenue — last 7 days</h3>
+                <h3 className="font-semibold">Net earnings — last 7 days</h3>
+                <p className="mb-4 text-xs text-gray-500">After the {FEE_PCT}% platform fee</p>
                 <BarChart data={chart} format={money} />
               </div>
               <div className="card p-6">
@@ -86,7 +92,7 @@ function Dashboard() {
                 <div className="space-y-4">
                   {orders.slice(0, 4).map((o) => (
                     <div key={o.id} className="rounded-xl border p-4">
-                      <div className="mb-2 flex justify-between text-sm"><b>{o.id}</b><span>{money(myRevenue(o))}</span></div>
+                      <div className="mb-2 flex justify-between text-sm"><b>{o.id}</b><span>{money(myGross(o))} <span className="text-xs text-gray-500">· net {money(myNet(o))}</span></span></div>
                       <DeliveryTracker order={o} compact />
                     </div>
                   ))}
@@ -135,11 +141,15 @@ function Dashboard() {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div><p className="font-semibold">{o.id}</p><p className="text-xs text-gray-500">{o.buyerName} · {date(o.createdAt)} · {o.address?.city}</p></div>
                     <OrderStatusBadge order={o} />
-                    <p className="font-bold">{money(myRevenue(o))}</p>
                   </div>
                   <ul className="mt-3 space-y-1 text-sm text-gray-600">
-                    {myLines(o).map((i) => <li key={i.productId}>• {i.name} × {i.qty}</li>)}
+                    {myLines(o).map((i) => <li key={i.productId} className="flex justify-between gap-3"><span>• {i.name} × {i.qty}</span><span>{money(i.price * i.qty)}</span></li>)}
                   </ul>
+                  <div className={`mt-3 grid grid-cols-3 gap-2 text-center text-sm ${o.status === "cancelled" ? "opacity-50" : ""}`}>
+                    <div className="rounded-xl bg-gray-50 p-2"><p className="text-[11px] text-gray-500">Gross</p><p className="font-semibold">{money(myGross(o))}</p></div>
+                    <div className="rounded-xl bg-rose-50 p-2"><p className="text-[11px] text-rose-700">Fee ({FEE_PCT}%)</p><p className="font-semibold text-rose-700">−{money(commissionOf(myGross(o)))}</p></div>
+                    <div className="rounded-xl bg-brand-50 p-2"><p className="text-[11px] text-brand-700">Net ({PAYOUT_PCT}%)</p><p className="font-bold text-brand-800">{money(myNet(o))}</p></div>
+                  </div>
                   <div className="mt-3"><DeliveryTracker order={o} compact /></div>
                 </div>
               ))}

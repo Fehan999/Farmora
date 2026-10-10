@@ -6,33 +6,34 @@ import DashboardShell from "@/components/DashboardShell";
 import StatCard from "@/components/StatCard";
 import BarChart from "@/components/BarChart";
 import SafeImage from "@/components/SafeImage";
-import OrderStatusBadge from "@/components/OrderStatusBadge";
 import ProductForm from "@/components/ProductForm";
+import SaleDetails, { SaleStatus } from "@/components/SaleDetails";
 import useData from "@/components/useData";
 import { useShop } from "@/context/ShopContext";
 import {
   getProducts, getAllOrders, getAllUsers, getFarmers, getMessages,
   patchProduct, removeProduct, saveProduct, updateOrder, setUserStatus,
 } from "@/lib/db";
-import { revenueByDay } from "@/lib/stats";
-import { deliveryStatus } from "@/lib/delivery";
-import { money, date, dateTime } from "@/lib/format";
+import { commissionByDay, isActiveOrder, orderGross, orderCommission, orderPayout, FEE_PCT, PAYOUT_PCT } from "@/lib/stats";
+import { money, date, dateTime, commissionOf } from "@/lib/format";
 import { CATEGORIES } from "@/data/seed";
 
 const TABS = [
   { key: "overview", label: "Overview", icon: "📊" },
-  { key: "orders", label: "Orders", icon: "📦" },
+  { key: "sales", label: "Sales", icon: "💵" },
   { key: "products", label: "Products", icon: "🥕" },
   { key: "users", label: "Users", icon: "👥" },
   { key: "farmers", label: "Farmers", icon: "🧑‍🌾" },
   { key: "messages", label: "Messages", icon: "✉️" },
 ];
 
+const cell = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+
 function Table({ head, children }) {
   return (
     <div className="card overflow-x-auto">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500"><tr>{head.map((h) => <th key={h} className="whitespace-nowrap p-3">{h}</th>)}</tr></thead>
+        <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500"><tr>{head.map((h, i) => <th key={i} className="whitespace-nowrap p-3">{h}</th>)}</tr></thead>
         <tbody className="divide-y">{children}</tbody>
       </table>
     </div>
@@ -44,64 +45,98 @@ function Admin() {
   const [tab, setTab] = useState("overview");
   const [q, setQ] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [saleFilter, setSaleFilter] = useState("all");
   const [editing, setEditing] = useState(null);
+  const [viewing, setViewing] = useState(null);
   const { data, reload } = useData(async () => {
     const [products, orders, users, farmers, messages] = await Promise.all([getProducts({ includeHidden: true }), getAllOrders(), getAllUsers(), getFarmers(), getMessages()]);
     return { products, orders, users, farmers, messages };
   });
 
-  const chart = useMemo(() => revenueByDay(data?.orders || []), [data]);
-  if (!data) return <div className="container-x py-24 text-center text-gray-500">Loading dashboard...</div>;
-  const { products, orders, users, farmers, messages } = data;
-  const farmerName = (id) => farmers.find((f) => f.id === id)?.name || "—";
-  const valid = orders.filter((o) => o.status !== "cancelled");
-  const revenue = valid.reduce((s, o) => s + o.total, 0);
+  const stats = useMemo(() => {
+    if (!data) return null;
+    const { products, orders, farmers } = data;
+    const productMap = new Map(products.map((p) => [p.id, p]));
+    const farmerMap = new Map(farmers.map((f) => [f.id, f]));
+    const valid = orders.filter(isActiveOrder);
+    const byCategory = {};
+    const byFarmer = {};
+    let gross = 0;
+    valid.forEach((o) => (o.items || []).forEach((i) => {
+      const line = i.price * i.qty;
+      const cat = i.category || productMap.get(i.productId)?.category;
+      gross += line;
+      byCategory[cat] = (byCategory[cat] || 0) + line;
+      byFarmer[i.farmerId] = (byFarmer[i.farmerId] || 0) + line;
+    }));
+    const commission = commissionOf(gross);
+    const categories = CATEGORIES.map((c) => ({ ...c, value: commissionOf(byCategory[c.slug] || 0) })).sort((a, b) => b.value - a.value);
+    return {
+      farmerMap, valid, gross, commission, payout: gross - commission, byFarmer, categories,
+      maxCat: Math.max(1, ...categories.map((c) => c.value)),
+      chart: commissionByDay(orders),
+      topProducts: [...products].sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 6),
+      farmerRows: farmers.map((f) => ({ ...f, gross: byFarmer[f.id] || 0, products: products.filter((p) => p.farmerId === f.id).length })).sort((a, b) => b.gross - a.gross),
+    };
+  }, [data]);
+
+  if (!data || !stats) return <div className="container-x py-24 text-center text-gray-500">Loading dashboard...</div>;
+  const { products, orders, users, messages } = data;
+  const farmerName = (id) => stats.farmerMap.get(id)?.name || "—";
   const match = (s) => s.toLowerCase().includes(q.toLowerCase());
 
-  const categoryStats = CATEGORIES.map((c) => ({
-    ...c,
-    value: valid.reduce((s, o) => s + o.items.filter((i) => products.find((p) => p.id === i.productId)?.category === c.slug).reduce((a, i) => a + i.price * i.qty, 0), 0),
-  }));
-  const maxCat = Math.max(1, ...categoryStats.map((c) => c.value));
-
-  const filteredOrders = orders.filter((o) => {
-    const st = deliveryStatus(o);
-    const key = st.cancelled ? "cancelled" : st.delivered ? "delivered" : "active";
-    return (statusFilter === "all" || statusFilter === key) && match(`${o.id} ${o.buyerName}`);
+  const filteredSales = orders.filter((o) => {
+    const key = isActiveOrder(o) ? "completed" : "cancelled";
+    return (saleFilter === "all" || saleFilter === key) && match(`${o.id} ${o.buyerName || ""} ${o.buyerEmail || ""}`);
   });
+  const filteredGross = filteredSales.filter(isActiveOrder).reduce((s, o) => s + orderGross(o), 0);
 
   async function act(fn, msg) { await fn(); toast(msg); reload(); }
 
   function exportCsv() {
-    const rows = [["Order", "Buyer", "Date", "Items", "Total", "Status"], ...orders.map((o) => [o.id, o.buyerName, o.createdAt, o.items.length, o.total.toFixed(2), deliveryStatus(o).stage.label])];
-    const blob = new Blob([rows.map((r) => r.join(",")).join("\n")], { type: "text/csv" });
+    const list = tab === "sales" ? filteredSales : orders;
+    const rows = [
+      ["Order", "Buyer", "Email", "Date", "Items", "Order value", `Commission (${FEE_PCT}%)`, `Farmer payout (${PAYOUT_PCT}%)`, "Status"],
+      ...list.map((o) => {
+        const ok = isActiveOrder(o);
+        return [o.id, o.buyerName, o.buyerEmail, o.createdAt, (o.items || []).length, orderGross(o).toFixed(2), ok ? orderCommission(o).toFixed(2) : "0.00", ok ? orderPayout(o).toFixed(2) : "0.00", ok ? "Completed" : "Cancelled"];
+      }),
+    ];
+    const url = URL.createObjectURL(new Blob([rows.map((r) => r.map(cell).join(",")).join("\n")], { type: "text/csv" }));
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "farmora-orders.csv";
+    a.href = url;
+    a.download = "farmora-sales.csv";
     a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
   return (
-    <DashboardShell title="Admin dashboard" subtitle="Monitor the marketplace, manage users, products and orders." tabs={TABS} tab={tab} setTab={(t) => { setTab(t); setQ(""); }}
-      actions={<button onClick={exportCsv} className="btn-outline">⬇ Export orders CSV</button>}>
+    <DashboardShell title="Admin dashboard" subtitle={`Farmora earns ${FEE_PCT}% of the product price on every sale.`} tabs={TABS} tab={tab} setTab={(t) => { setTab(t); setQ(""); }}
+      actions={<button onClick={exportCsv} className="btn-outline">⬇ Export sales CSV</button>}>
       {tab === "overview" && (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard icon="💰" label="Total revenue" value={money(revenue)} hint={`${valid.length} completed orders`} />
-            <StatCard icon="📦" label="Orders" value={orders.length} tone="blue" hint={`${orders.filter((o) => deliveryStatus(o).delivered).length} delivered`} />
-            <StatCard icon="👥" label="Users" value={users.length} tone="earth" hint={`${users.filter((u) => u.role === "farmer").length} farmers`} />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            <StatCard icon="💰" label={`Platform earnings (${FEE_PCT}%)`} value={money(stats.commission)} hint={`From ${stats.valid.length} completed sales`} />
+            <StatCard icon="🧾" label="Gross sales" value={money(stats.gross)} tone="blue" hint="Product value of completed sales" />
+            <StatCard icon="🧑‍🌾" label={`Paid to farmers (${PAYOUT_PCT}%)`} value={money(stats.payout)} tone="earth" hint={`${data.farmers.length} farms`} />
+            <StatCard icon="💵" label="Sales" value={stats.valid.length} tone="blue" hint={`${orders.length - stats.valid.length} cancelled`} />
+            <StatCard icon="👥" label="Users" value={users.length} tone="earth" hint={`${users.filter((u) => u.role === "farmer").length} farmers · ${users.filter((u) => u.role === "buyer").length} buyers`} />
             <StatCard icon="🥕" label="Products" value={products.length} tone="rose" hint={`${products.filter((p) => p.stock < 20).length} low stock`} />
           </div>
           <div className="grid gap-6 xl:grid-cols-2">
-            <div className="card p-6"><h3 className="mb-4 font-semibold">Revenue — last 7 days</h3><BarChart data={chart} format={money} /></div>
             <div className="card p-6">
-              <h3 className="mb-4 font-semibold">Sales by category</h3>
+              <h3 className="font-semibold">Platform earnings — last 7 days</h3>
+              <p className="mb-4 text-xs text-gray-500">{FEE_PCT}% commission per day</p>
+              <BarChart data={stats.chart} format={money} />
+            </div>
+            <div className="card p-6">
+              <h3 className="font-semibold">Sales by category</h3>
+              <p className="mb-4 text-xs text-gray-500">Commission earned per category</p>
               <div className="space-y-3">
-                {categoryStats.map((c) => (
+                {stats.categories.map((c) => (
                   <div key={c.slug}>
                     <div className="mb-1 flex justify-between text-xs"><span>{c.icon} {c.name}</span><span className="font-semibold">{money(c.value)}</span></div>
-                    <div className="h-2 rounded-full bg-gray-100"><div className="h-full rounded-full bg-earth-400" style={{ width: `${(c.value / maxCat) * 100}%` }} /></div>
+                    <div className="h-2 rounded-full bg-gray-100"><div className="h-full rounded-full bg-earth-400" style={{ width: `${(c.value / stats.maxCat) * 100}%` }} /></div>
                   </div>
                 ))}
               </div>
@@ -109,26 +144,29 @@ function Admin() {
           </div>
           <div className="grid gap-6 xl:grid-cols-2">
             <div className="card p-6">
-              <h3 className="mb-4 font-semibold">Latest orders</h3>
+              <div className="mb-4 flex items-center justify-between"><h3 className="font-semibold">Latest sales</h3><button onClick={() => setTab("sales")} className="text-sm font-medium text-brand-700 hover:underline">View all →</button></div>
               <div className="divide-y text-sm">
                 {orders.slice(0, 6).map((o) => (
-                  <div key={o.id} className="flex items-center justify-between py-2.5">
-                    <div><Link href={`/orders/${o.id}`} className="font-medium hover:text-brand-700">{o.id}</Link><p className="text-xs text-gray-500">{o.buyerName}</p></div>
-                    <OrderStatusBadge order={o} />
-                    <span className="font-semibold">{money(o.total)}</span>
+                  <div key={o.id} className="flex items-center justify-between gap-3 py-2.5">
+                    <div className="min-w-0"><button onClick={() => setViewing(o)} className="font-medium hover:text-brand-700">{o.id}</button><p className="truncate text-xs text-gray-500">{o.buyerName} · {date(o.createdAt)}</p></div>
+                    <div className="text-right">
+                      <p className="font-semibold">{money(orderGross(o))}</p>
+                      {isActiveOrder(o) ? <p className="text-xs font-medium text-brand-700">+{money(orderCommission(o))} earned</p> : <SaleStatus order={o} />}
+                    </div>
                   </div>
                 ))}
+                {orders.length === 0 && <p className="py-4 text-gray-500">No sales yet.</p>}
               </div>
             </div>
             <div className="card p-6">
               <h3 className="mb-4 font-semibold">Top products</h3>
               <div className="divide-y text-sm">
-                {[...products].sort((a, b) => b.sold - a.sold).slice(0, 6).map((p, i) => (
+                {stats.topProducts.map((p, i) => (
                   <div key={p.id} className="flex items-center gap-3 py-2.5">
                     <span className="w-5 text-gray-400">{i + 1}</span>
-                    <SafeImage src={p.image} className="h-9 w-9 rounded-lg object-cover" />
+                    <SafeImage src={p.image} alt={p.name} sizes="36px" className="h-9 w-9 rounded-lg object-cover" />
                     <span className="flex-1 font-medium">{p.name}</span>
-                    <span className="text-gray-500">{p.sold} sold</span>
+                    <span className="text-gray-500">{p.sold || 0} sold</span>
                   </div>
                 ))}
               </div>
@@ -137,32 +175,38 @@ function Admin() {
         </div>
       )}
 
-      {tab === "orders" && (
+      {tab === "sales" && (
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <input className="input max-w-xs" placeholder="Search order or buyer..." value={q} onChange={(e) => setQ(e.target.value)} />
-            <select className="input w-auto" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-              <option value="all">All statuses</option><option value="active">In transit</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option>
+            <select className="input w-auto" value={saleFilter} onChange={(e) => setSaleFilter(e.target.value)}>
+              <option value="all">All</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option>
             </select>
+            <p className="text-sm text-gray-500 sm:ml-auto">{filteredSales.length} sales · {money(filteredGross)} value · <b className="text-brand-700">{money(commissionOf(filteredGross))} commission</b></p>
           </div>
-          <Table head={["Order", "Buyer", "Date", "Items", "Total", "Payment", "Status", ""]}>
-            {filteredOrders.map((o) => (
-              <tr key={o.id}>
-                <td className="p-3 font-medium"><Link href={`/orders/${o.id}`} className="hover:text-brand-700">{o.id}</Link></td>
-                <td className="p-3">{o.buyerName}<div className="text-xs text-gray-400">{o.buyerEmail}</div></td>
-                <td className="whitespace-nowrap p-3">{dateTime(o.createdAt)}</td>
-                <td className="p-3">{o.items.length}</td>
-                <td className="p-3 font-semibold">{money(o.total)}</td>
-                <td className="p-3">{o.payment}</td>
-                <td className="p-3"><OrderStatusBadge order={o} /></td>
-                <td className="p-3 text-right">
-                  {o.status === "cancelled"
-                    ? <button onClick={() => act(() => updateOrder(o.id, { status: "placed" }), "Order restored")} className="text-brand-700 hover:underline">Restore</button>
-                    : <button onClick={() => act(() => updateOrder(o.id, { status: "cancelled" }), "Order cancelled")} className="text-red-600 hover:underline">Cancel</button>}
-                </td>
-              </tr>
-            ))}
+          <Table head={["Order", "Buyer", "Date", "Items", "Order value", `Commission (${FEE_PCT}%)`, "Farmer payout", "Status", ""]}>
+            {filteredSales.map((o) => {
+              const off = isActiveOrder(o) ? "" : "text-gray-400 line-through";
+              return (
+                <tr key={o.id}>
+                  <td className="p-3 font-medium"><button onClick={() => setViewing(o)} className="hover:text-brand-700">{o.id}</button></td>
+                  <td className="p-3">{o.buyerName}<div className="text-xs text-gray-400">{o.buyerEmail}</div></td>
+                  <td className="whitespace-nowrap p-3">{dateTime(o.createdAt)}</td>
+                  <td className="p-3">{(o.items || []).length}</td>
+                  <td className="p-3 font-semibold">{money(orderGross(o))}</td>
+                  <td className={`p-3 font-semibold text-brand-700 ${off}`}>{money(orderCommission(o))}</td>
+                  <td className={`p-3 ${off}`}>{money(orderPayout(o))}</td>
+                  <td className="p-3"><SaleStatus order={o} /></td>
+                  <td className="p-3 text-right">
+                    {isActiveOrder(o)
+                      ? <button onClick={() => act(() => updateOrder(o.id, { status: "cancelled" }), "Sale cancelled")} className="text-red-600 hover:underline">Cancel</button>
+                      : <button onClick={() => act(() => updateOrder(o.id, { status: "placed" }), "Sale restored")} className="text-brand-700 hover:underline">Restore</button>}
+                  </td>
+                </tr>
+              );
+            })}
           </Table>
+          {filteredSales.length === 0 && <div className="card p-10 text-center text-gray-500">No sales match your filters.</div>}
         </div>
       )}
 
@@ -175,7 +219,7 @@ function Admin() {
           <Table head={["Product", "Farm", "Price", "Stock", "Sold", "Featured", "Status", ""]}>
             {products.filter((p) => match(p.name)).map((p) => (
               <tr key={p.id}>
-                <td className="p-3"><div className="flex items-center gap-3"><SafeImage src={p.image} className="h-10 w-10 rounded-lg object-cover" /><Link href={`/product/${p.id}`} className="font-medium hover:text-brand-700">{p.name}</Link></div></td>
+                <td className="p-3"><div className="flex items-center gap-3"><SafeImage src={p.image} alt={p.name} sizes="40px" className="h-10 w-10 rounded-lg object-cover" /><Link href={`/product/${p.id}`} className="font-medium hover:text-brand-700">{p.name}</Link></div></td>
                 <td className="p-3">{farmerName(p.farmerId)}</td>
                 <td className="p-3">{money(p.price)}</td>
                 <td className="p-3">{p.stock}</td>
@@ -207,7 +251,7 @@ function Admin() {
           <Table head={["User", "Role", "Phone", "Location", "Joined", "Status", ""]}>
             {users.filter((u) => (roleFilter === "all" || u.role === roleFilter) && match(`${u.name} ${u.email}`)).map((u) => (
               <tr key={u.id}>
-                <td className="p-3"><div className="flex items-center gap-3"><SafeImage src={u.avatar || `https://i.pravatar.cc/80?u=${u.id}`} className="h-9 w-9 rounded-full object-cover" /><div><p className="font-medium">{u.name}</p><p className="text-xs text-gray-400">{u.email}</p></div></div></td>
+                <td className="p-3"><div className="flex items-center gap-3"><SafeImage src={u.avatar || `https://i.pravatar.cc/80?u=${u.id}`} alt={u.name} sizes="36px" className="h-9 w-9 rounded-full object-cover" /><div><p className="font-medium">{u.name}</p><p className="text-xs text-gray-400">{u.email}</p></div></div></td>
                 <td className="p-3"><span className={`badge capitalize ${u.role === "admin" ? "bg-purple-100 text-purple-700" : u.role === "farmer" ? "bg-earth-100 text-earth-600" : "bg-sky-100 text-sky-700"}`}>{u.role}</span></td>
                 <td className="whitespace-nowrap p-3">{u.phone || "—"}</td>
                 <td className="p-3">{u.location || "—"}</td>
@@ -226,17 +270,23 @@ function Admin() {
 
       {tab === "farmers" && (
         <div className="grid gap-4 md:grid-cols-2">
-          {farmers.map((f) => {
-            const fp = products.filter((p) => p.farmerId === f.id);
-            const fr = valid.reduce((s, o) => s + o.items.filter((i) => i.farmerId === f.id).reduce((a, i) => a + i.price * i.qty, 0), 0);
+          {stats.farmerRows.map((f) => {
+            const fee = commissionOf(f.gross);
             return (
-              <div key={f.id} className="card flex gap-4 p-5">
-                <SafeImage src={f.avatar} className="h-16 w-16 rounded-xl object-cover" />
-                <div className="flex-1 text-sm">
-                  <Link href={`/farmers/${f.id}`} className="font-semibold hover:text-brand-700">{f.name}</Link> {f.verified ? <span className="badge bg-brand-100 text-brand-700">Verified</span> : <span className="badge bg-amber-100 text-amber-700">Pending</span>}
-                  <p className="text-gray-500">{f.owner} · {f.location}</p>
-                  <p className="text-gray-500">{f.email}</p>
-                  <div className="mt-2 flex gap-4 text-xs"><span><b>{fp.length}</b> products</span><span><b>{money(fr)}</b> revenue</span><span>⭐ {f.rating}</span></div>
+              <div key={f.id} className="card p-5">
+                <div className="flex gap-4">
+                  <SafeImage src={f.avatar} alt={f.name} sizes="64px" className="h-16 w-16 rounded-xl object-cover" />
+                  <div className="min-w-0 flex-1 text-sm">
+                    <Link href={`/farmers/${f.id}`} className="font-semibold hover:text-brand-700">{f.name}</Link> {f.verified ? <span className="badge bg-brand-100 text-brand-700">Verified</span> : <span className="badge bg-amber-100 text-amber-700">Pending</span>}
+                    <p className="text-gray-500">{f.owner} · {f.location}</p>
+                    <p className="truncate text-gray-500">{f.email}</p>
+                    <div className="mt-1 flex gap-4 text-xs text-gray-500"><span><b className="text-gray-800">{f.products}</b> products</span><span>⭐ {f.rating}</span></div>
+                  </div>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="rounded-xl bg-gray-50 p-2"><p className="text-[11px] text-gray-500">Gross sales</p><p className="font-bold">{money(f.gross)}</p></div>
+                  <div className="rounded-xl bg-brand-50 p-2"><p className="text-[11px] text-brand-700">Commission ({FEE_PCT}%)</p><p className="font-bold text-brand-800">{money(fee)}</p></div>
+                  <div className="rounded-xl bg-earth-50 p-2"><p className="text-[11px] text-earth-600">Net earnings ({PAYOUT_PCT}%)</p><p className="font-bold">{money(f.gross - fee)}</p></div>
                 </div>
               </div>
             );
@@ -256,6 +306,8 @@ function Admin() {
           ))}
         </div>
       )}
+
+      {viewing && <SaleDetails order={viewing} farmerName={farmerName} onClose={() => setViewing(null)} />}
 
       {editing && (
         <ProductForm initial={editing} onClose={() => setEditing(null)}
