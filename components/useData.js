@@ -1,15 +1,30 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 export default function useData(loader, deps = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const reload = useCallback(async () => {
-    setLoading(true);
-    setData(await loader());
+  const loaderRef = useRef(loader);
+  const requestRef = useRef(0);
+  loaderRef.current = loader;
+
+  const run = useCallback(async (silent) => {
+    const request = ++requestRef.current;
+    if (!silent) setLoading(true);
+    const result = await loaderRef.current();
+    if (request !== requestRef.current) return;
+    setData(result);
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
-  useEffect(() => { reload(); }, [reload]);
+
+  useEffect(() => { run(false); }, [run]);
+
+  useEffect(() => {
+    const onChange = () => run(true);
+    window.addEventListener("farmora:data", onChange);
+    return () => window.removeEventListener("farmora:data", onChange);
+  }, [run]);
+
+  const reload = useCallback(() => run(true), [run]);
   return { data, loading, reload, setData };
 }
