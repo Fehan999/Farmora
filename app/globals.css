@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html { scroll-behavior: smooth; }
+body { @apply bg-[#fbfaf6] text-gray-800 antialiased; }
+
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60; }
+  .btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700 shadow-sm; }
+  .btn-outline { @apply btn border border-brand-600 text-brand-700 hover:bg-brand-50; }
+  .btn-ghost { @apply btn text-gray-700 hover:bg-gray-100; }
+  .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
+  .input { @apply w-full rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100; }
+  .label { @apply mb-1.5 block text-sm font-medium text-gray-700; }
+  .card { @apply rounded-2xl border border-gray-100 bg-white shadow-sm; }
+  .badge { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+}
+
+@keyframes slide-up { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+.animate-slide-up { animation: slide-up .25s ease-out; }
+@keyframes truck { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+.animate-truck { animation: truck .6s ease-in-out infinite; }
