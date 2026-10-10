@@ -28,47 +28,47 @@ Pages that need a login (orders, order tracking, account and the dashboards) wer
 
 **Live 3-day delivery tracker**
 
-![Order page with the live delivery tracker](./screenshots/order-tracking.png)
+![Order page with the live delivery tracker](./screenshots/order-tracking.jpg)
 
 **Admin dashboard: the platform's 10% commission at a glance**
 
-![Admin dashboard overview](./screenshots/admin-dashboard.png)
+![Admin dashboard overview](./screenshots/admin-dashboard.jpg)
 
 <table>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/home.png"><img src="./screenshots/home.png" alt="Home page" width="160"></a><br><sub>Home</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/shop.png"><img src="./screenshots/shop.png" alt="Shop page with filters" width="160"></a><br><sub>Shop</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/categories.png"><img src="./screenshots/categories.png" alt="Categories page" width="160"></a><br><sub>Categories</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/product.png"><img src="./screenshots/product.png" alt="Product page" width="160"></a><br><sub>Product</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/farmers.png"><img src="./screenshots/farmers.png" alt="Farmers directory" width="160"></a><br><sub>Farmers</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/home.jpg"><img src="./screenshots/home.jpg" alt="Home page" width="160"></a><br><sub>Home</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/shop.jpg"><img src="./screenshots/shop.jpg" alt="Shop page with filters" width="160"></a><br><sub>Shop</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/categories.jpg"><img src="./screenshots/categories.jpg" alt="Categories page" width="160"></a><br><sub>Categories</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/product.jpg"><img src="./screenshots/product.jpg" alt="Product page" width="160"></a><br><sub>Product</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmers.jpg"><img src="./screenshots/farmers.jpg" alt="Farmers directory" width="160"></a><br><sub>Farmers</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/farmer-profile.png"><img src="./screenshots/farmer-profile.png" alt="Farmer profile page" width="160"></a><br><sub>Farm profile</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/cart.png"><img src="./screenshots/cart.png" alt="Shopping cart" width="160"></a><br><sub>Cart</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/checkout.png"><img src="./screenshots/checkout.png" alt="Checkout page" width="160"></a><br><sub>Checkout</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/orders.png"><img src="./screenshots/orders.png" alt="Order history" width="160"></a><br><sub>My orders</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/track.png"><img src="./screenshots/track.png" alt="Public order tracking page" width="160"></a><br><sub>Track an order</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmer-profile.jpg"><img src="./screenshots/farmer-profile.jpg" alt="Farmer profile page" width="160"></a><br><sub>Farm profile</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/cart.jpg"><img src="./screenshots/cart.jpg" alt="Shopping cart" width="160"></a><br><sub>Cart</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/checkout.jpg"><img src="./screenshots/checkout.jpg" alt="Checkout page" width="160"></a><br><sub>Checkout</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/orders.jpg"><img src="./screenshots/orders.jpg" alt="Order history" width="160"></a><br><sub>My orders</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/track.jpg"><img src="./screenshots/track.jpg" alt="Public order tracking page" width="160"></a><br><sub>Track an order</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/wishlist.png"><img src="./screenshots/wishlist.png" alt="Wishlist" width="160"></a><br><sub>Wishlist</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/account.png"><img src="./screenshots/account.png" alt="Account settings" width="160"></a><br><sub>Account</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/login.png"><img src="./screenshots/login.png" alt="Login page with role picker" width="160"></a><br><sub>Login</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/register.png"><img src="./screenshots/register.png" alt="Register page" width="160"></a><br><sub>Register</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/sell.png"><img src="./screenshots/sell.png" alt="Sell on Farmora page" width="160"></a><br><sub>Sell on Farmora</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/wishlist.jpg"><img src="./screenshots/wishlist.jpg" alt="Wishlist" width="160"></a><br><sub>Wishlist</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/account.jpg"><img src="./screenshots/account.jpg" alt="Account settings" width="160"></a><br><sub>Account</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/login.jpg"><img src="./screenshots/login.jpg" alt="Login page with role picker" width="160"></a><br><sub>Login</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/register.jpg"><img src="./screenshots/register.jpg" alt="Register page" width="160"></a><br><sub>Register</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/sell.jpg"><img src="./screenshots/sell.jpg" alt="Sell on Farmora page" width="160"></a><br><sub>Sell on Farmora</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/farmer-dashboard.png"><img src="./screenshots/farmer-dashboard.png" alt="Farmer dashboard" width="160"></a><br><sub>Farmer dashboard</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/farmer-products.png"><img src="./screenshots/farmer-products.png" alt="Farmer dashboard products tab" width="160"></a><br><sub>Farmer products</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/admin-sales.png"><img src="./screenshots/admin-sales.png" alt="Admin sales tab" width="160"></a><br><sub>Admin sales</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/admin-users.png"><img src="./screenshots/admin-users.png" alt="Admin users tab" width="160"></a><br><sub>Admin users</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/about.png"><img src="./screenshots/about.png" alt="About page" width="160"></a><br><sub>About</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmer-dashboard.jpg"><img src="./screenshots/farmer-dashboard.jpg" alt="Farmer dashboard" width="160"></a><br><sub>Farmer dashboard</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmer-products.jpg"><img src="./screenshots/farmer-products.jpg" alt="Farmer dashboard products tab" width="160"></a><br><sub>Farmer products</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/admin-sales.jpg"><img src="./screenshots/admin-sales.jpg" alt="Admin sales tab" width="160"></a><br><sub>Admin sales</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/admin-users.jpg"><img src="./screenshots/admin-users.jpg" alt="Admin users tab" width="160"></a><br><sub>Admin users</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/about.jpg"><img src="./screenshots/about.jpg" alt="About page" width="160"></a><br><sub>About</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/contact.png"><img src="./screenshots/contact.png" alt="Contact page" width="160"></a><br><sub>Contact</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/blog.png"><img src="./screenshots/blog.png" alt="Blog page" width="160"></a><br><sub>Blog</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/faq.png"><img src="./screenshots/faq.png" alt="FAQ page" width="160"></a><br><sub>FAQ</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/terms.png"><img src="./screenshots/terms.png" alt="Terms of service page" width="160"></a><br><sub>Terms</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/not-found.png"><img src="./screenshots/not-found.png" alt="404 page" width="160"></a><br><sub>404 page</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/contact.jpg"><img src="./screenshots/contact.jpg" alt="Contact page" width="160"></a><br><sub>Contact</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/blog.jpg"><img src="./screenshots/blog.jpg" alt="Blog page" width="160"></a><br><sub>Blog</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/faq.jpg"><img src="./screenshots/faq.jpg" alt="FAQ page" width="160"></a><br><sub>FAQ</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/terms.jpg"><img src="./screenshots/terms.jpg" alt="Terms of service page" width="160"></a><br><sub>Terms</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/not-found.jpg"><img src="./screenshots/not-found.jpg" alt="404 page" width="160"></a><br><sub>404 page</sub></td>
   </tr>
 </table>
 
@@ -78,9 +78,9 @@ Click a thumbnail to see the full page.
 
 <table>
   <tr>
-    <td align="center"><img src="./screenshots/mobile-home.png" alt="Home page on mobile" width="220"><br><sub>Home</sub></td>
-    <td align="center"><img src="./screenshots/mobile-shop.png" alt="Shop page on mobile" width="220"><br><sub>Shop</sub></td>
-    <td align="center"><img src="./screenshots/mobile-product.png" alt="Product page on mobile" width="220"><br><sub>Product</sub></td>
+    <td align="center"><img src="./screenshots/mobile-home.jpg" alt="Home page on mobile" width="220"><br><sub>Home</sub></td>
+    <td align="center"><img src="./screenshots/mobile-shop.jpg" alt="Shop page on mobile" width="220"><br><sub>Shop</sub></td>
+    <td align="center"><img src="./screenshots/mobile-product.jpg" alt="Product page on mobile" width="220"><br><sub>Product</sub></td>
   </tr>
 </table>
 

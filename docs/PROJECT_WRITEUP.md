@@ -32,28 +32,28 @@ These come from the `screenshots/` folder in the repo and are captured by the Pl
 
 | Screenshot | What it shows | Image link |
 |---|---|---|
-| Home | Hero, categories, featured products, harvest deals, partner farms and reviews | [home.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/home.png) |
-| Product | Heirloom Tomatoes from Green Valley Farm, with the gallery, reviews and related products | [product.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/product.png) |
-| Order tracking | A sample order with the live 3-day delivery tracker, seen as the demo customer | [order-tracking.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/order-tracking.png) |
-| Admin dashboard | The overview, led by the platform's 10% commission | [admin-dashboard.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/admin-dashboard.png) |
-| Farmer dashboard | Robert Hayes' gross sales, platform fee, net earnings and recent orders | [farmer-dashboard.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/farmer-dashboard.png) |
-| Login | The Customer or Farmer choice, demo buttons and the admin demo | [login.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/login.png) |
-| Home on a phone | The home page on a 390 px wide screen | [mobile-home.png](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/mobile-home.png) |
+| Home | Hero, categories, featured products, harvest deals, partner farms and reviews | [home.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/home.jpg) |
+| Product | Heirloom Tomatoes from Green Valley Farm, with the gallery, reviews and related products | [product.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/product.jpg) |
+| Order tracking | A sample order with the live 3-day delivery tracker, seen as the demo customer | [order-tracking.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/order-tracking.jpg) |
+| Admin dashboard | The overview, led by the platform's 10% commission | [admin-dashboard.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/admin-dashboard.jpg) |
+| Farmer dashboard | Robert Hayes' gross sales, platform fee, net earnings and recent orders | [farmer-dashboard.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/farmer-dashboard.jpg) |
+| Login | The Customer or Farmer choice, demo buttons and the admin demo | [login.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/login.jpg) |
+| Home on a phone | The home page on a 390 px wide screen | [mobile-home.jpg](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/mobile-home.jpg) |
 
-![Farmora home page](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/home.png)
+![Farmora home page](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/home.jpg)
 
-![Order page with the live 3-day delivery tracker](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/order-tracking.png)
+![Order page with the live 3-day delivery tracker](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/order-tracking.jpg)
 
-![Admin dashboard overview](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/admin-dashboard.png)
+![Admin dashboard overview](https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/admin-dashboard.jpg)
 
 <p>
-  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/product.png" alt="Product page" width="49%">
-  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/farmer-dashboard.png" alt="Farmer dashboard" width="49%">
+  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/product.jpg" alt="Product page" width="49%">
+  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/farmer-dashboard.jpg" alt="Farmer dashboard" width="49%">
 </p>
 
 <p>
-  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/login.png" alt="Login page with the role picker" width="66%">
-  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/mobile-home.png" alt="Home page on a phone" width="30%">
+  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/login.jpg" alt="Login page with the role picker" width="66%">
+  <img src="https://github.com/Fehan999/Farmora/raw/HEAD/screenshots/mobile-home.jpg" alt="Home page on a phone" width="30%">
 </p>
 
 ## Design decisions
