@@ -24,7 +24,8 @@ export default function Navbar() {
   const [menu, setMenu] = useState(false);
   const [q, setQ] = useState("");
 
-  const dashboard = user?.role === "admin" ? "/admin" : user?.role === "farmer" ? "/farmer/dashboard" : "/account";
+  const isAdmin = user?.role === "admin";
+  const dashboard = isAdmin ? "/admin" : user?.role === "farmer" ? "/farmer/dashboard" : "/account";
 
   function search(e) {
     e.preventDefault();
@@ -34,9 +35,11 @@ export default function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/90 backdrop-blur">
-      <div className="bg-brand-800 py-1.5 text-center text-xs font-medium text-brand-50">
-        🚚 Free delivery on orders over $50 · Every order arrives within 3 days · Use code <b>FRESH10</b> for 10% off
-      </div>
+      {!isAdmin && (
+        <div className="bg-brand-800 py-1.5 text-center text-xs font-medium text-brand-50">
+          🚚 Free delivery on orders over $50 · Every order arrives within 3 days · Use code <b>FRESH10</b> for 10% off
+        </div>
+      )}
       <div className="container-x flex h-16 items-center gap-4">
         <Logo />
         <nav className="ml-6 hidden items-center gap-1 lg:flex">
@@ -51,12 +54,16 @@ export default function Navbar() {
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search fresh produce..." className="input rounded-full bg-gray-50 py-2" />
         </form>
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <Link href="/wishlist" className="relative rounded-full p-2 text-xl hover:bg-gray-100" title="Wishlist">
-            ♡{wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-earth-500 text-[10px] font-bold text-white">{wishlist.length}</span>}
-          </Link>
-          <Link href="/cart" className="relative rounded-full p-2 text-xl hover:bg-gray-100" title="Cart">
-            🛒{cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-brand-600 text-[10px] font-bold text-white">{cartCount}</span>}
-          </Link>
+          {!isAdmin && (
+            <>
+              <Link href="/wishlist" className="relative rounded-full p-2 text-xl hover:bg-gray-100" title="Wishlist">
+                ♡{wishlist.length > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-earth-500 text-[10px] font-bold text-white">{wishlist.length}</span>}
+              </Link>
+              <Link href="/cart" className="relative rounded-full p-2 text-xl hover:bg-gray-100" title="Cart">
+                🛒{cartCount > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 w-5 place-items-center rounded-full bg-brand-600 text-[10px] font-bold text-white">{cartCount}</span>}
+              </Link>
+            </>
+          )}
           {user ? (
             <div className="relative">
               <button onClick={() => setMenu(!menu)} className="flex items-center gap-2 rounded-full border border-gray-200 py-1 pl-1 pr-3 hover:bg-gray-50">
@@ -69,8 +76,8 @@ export default function Navbar() {
                     <p className="text-sm font-semibold">{user.name}</p>
                     <p className="text-xs capitalize text-gray-500">{user.role} account</p>
                   </div>
-                  <Link onClick={() => setMenu(false)} href={dashboard} className="block px-4 py-2 text-sm hover:bg-gray-50">Dashboard</Link>
-                  <Link onClick={() => setMenu(false)} href="/orders" className="block px-4 py-2 text-sm hover:bg-gray-50">My Orders</Link>
+                  <Link onClick={() => setMenu(false)} href={dashboard} className="block px-4 py-2 text-sm hover:bg-gray-50">{isAdmin ? "Admin dashboard" : "Dashboard"}</Link>
+                  {!isAdmin && <Link onClick={() => setMenu(false)} href="/orders" className="block px-4 py-2 text-sm hover:bg-gray-50">My Orders</Link>}
                   <Link onClick={() => setMenu(false)} href="/account" className="block px-4 py-2 text-sm hover:bg-gray-50">Profile Settings</Link>
                   <button onClick={() => { logout(); setMenu(false); router.push("/"); }} className="block w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50">Log out</button>
                 </div>
