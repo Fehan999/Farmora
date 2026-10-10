@@ -10,6 +10,7 @@ import { getOrder, updateOrder } from "@/lib/db";
 import { deliveryStatus } from "@/lib/delivery";
 import { money, dateTime } from "@/lib/format";
 import { useShop } from "@/context/ShopContext";
+import { PAGE_IMAGES, SITE_IMAGES } from "@/data/images";
 
 function OrderDetail() {
   const { id } = useParams();
@@ -21,6 +22,7 @@ function OrderDetail() {
   if (!order) return <div className="container-x py-24 text-center"><h1 className="text-2xl font-bold">Order not found</h1><Link href="/orders" className="btn-primary mt-4">My orders</Link></div>;
 
   const s = deliveryStatus(order);
+  const banner = SITE_IMAGES.heroMain || PAGE_IMAGES.orders || order.items.find((i) => i.image)?.image || "";
   const canCancel = !s.cancelled && s.stageIndex < 2;
 
   async function cancel() {
@@ -33,7 +35,9 @@ function OrderDetail() {
   return (
     <div className="container-x py-10">
       {params.get("new") && (
-        <div className="mb-8 rounded-2xl bg-brand-600 p-6 text-center text-white">
+        <div className="relative isolate mb-8 overflow-hidden rounded-2xl bg-brand-600 p-8 text-center text-white">
+          {banner && <SafeImage src={banner} alt="Fresh produce being packed at the farm" sizes="(max-width: 1280px) 100vw, 1216px" className="absolute inset-0 -z-10 h-full w-full object-cover" />}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-800/95 via-brand-700/85 to-brand-800/95" />
           <div className="text-5xl">🎉</div>
           <h1 className="mt-2 text-2xl font-bold">Thank you! Your order is confirmed.</h1>
           <p className="text-brand-100">The farm has been notified and will start packing shortly.</p>
@@ -56,7 +60,7 @@ function OrderDetail() {
         <div className="card divide-y">
           {order.items.map((i) => (
             <div key={i.productId} className="flex items-center gap-4 p-4">
-              <SafeImage src={i.image} className="h-16 w-16 rounded-xl object-cover" />
+              <SafeImage src={i.image} alt={i.name} sizes="64px" className="h-16 w-16 rounded-xl object-cover" />
               <div className="flex-1"><Link href={`/product/${i.productId}`} className="font-semibold hover:text-brand-700">{i.name}</Link><p className="text-sm text-gray-500">{money(i.price)} × {i.qty}</p></div>
               <p className="font-bold">{money(i.price * i.qty)}</p>
             </div>

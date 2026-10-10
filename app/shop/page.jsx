@@ -3,9 +3,11 @@ import { Suspense, useMemo, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/ProductCard";
+import SafeImage from "@/components/SafeImage";
 import useData from "@/components/useData";
 import { getProducts, getFarmers } from "@/lib/db";
 import { CATEGORIES } from "@/data/seed";
+import { PAGE_IMAGES } from "@/data/images";
 
 const PER_PAGE = 12;
 
@@ -59,7 +61,7 @@ function Shop() {
 
   return (
     <>
-      <PageHeader title="Shop fresh" subtitle="Everything below was grown, raised or baked by independent farms." crumbs={[{ label: "Shop" }]} />
+      <PageHeader title="Shop fresh" subtitle="Everything below was grown, raised or baked by independent farms." crumbs={[{ label: "Shop" }]} image={PAGE_IMAGES.shop} imageAlt="Freshly harvested vegetables at a local farm" />
       <div className="container-x grid gap-8 py-10 lg:grid-cols-[260px_1fr]">
         <aside>
           <div className="card space-y-5 p-5 lg:sticky lg:top-28">
@@ -72,8 +74,11 @@ function Shop() {
               <div className="space-y-1">
                 {[{ slug: "all", name: "All products", icon: "🧺" }, ...CATEGORIES].map((c) => (
                   <button key={c.slug} onClick={() => setCategory(c.slug)}
-                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-1.5 text-left text-sm ${category === c.slug ? "bg-brand-600 text-white" : "hover:bg-gray-50"}`}>
-                    <span>{c.icon}</span>{c.name}
+                    className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm ${category === c.slug ? "bg-brand-600 text-white" : "hover:bg-gray-50"}`}>
+                    {c.image
+                      ? <SafeImage src={c.image} alt={c.name} sizes="28px" className="h-7 w-7 shrink-0 rounded-md object-cover" />
+                      : <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-brand-50 text-base">{c.icon}</span>}
+                    {c.name}
                   </button>
                 ))}
               </div>

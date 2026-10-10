@@ -1,10 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import Spinner from "@/components/Spinner";
 
 export default function RequireRole({ roles, children }) {
   const { user, loading } = useAuth();
-  if (loading) return <div className="container-x py-24 text-center text-gray-500">Loading...</div>;
+  if (loading) return <div className="container-x grid min-h-[50vh] place-items-center py-24"><Spinner size={48} label="Checking your account..." /></div>;
   if (!user || (roles && !roles.includes(user.role))) {
     return (
       <div className="container-x py-24 text-center">

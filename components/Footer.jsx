@@ -4,6 +4,9 @@ import { useState } from "react";
 import Logo from "./Logo";
 import { subscribeNewsletter } from "@/lib/db";
 
+const TRUST = [["🔒", "Secure checkout"], ["🚚", "3-day delivery"], ["🌱", "Freshness guarantee"], ["🤝", "Verified farmers"]];
+const PAYMENTS = ["VISA", "Mastercard", "AMEX", "💵 Cash on delivery"];
+
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [done, setDone] = useState(false);
@@ -54,6 +57,20 @@ export default function Footer() {
             <li><Link href="/shipping" className="hover:text-white">Shipping & Returns</Link></li>
             <li><Link href="/terms" className="hover:text-white">Terms of Service</Link></li>
             <li><Link href="/privacy" className="hover:text-white">Privacy Policy</Link></li>
+          </ul>
+        </div>
+      </div>
+      <div className="border-t border-brand-800">
+        <div className="container-x flex flex-col items-center justify-between gap-4 py-6 lg:flex-row">
+          <ul className="flex flex-wrap justify-center gap-2 lg:justify-start" aria-label="Trust and payment">
+            {TRUST.map(([i, l]) => (
+              <li key={l} className="inline-flex items-center gap-1.5 rounded-full border border-brand-700 bg-brand-800/60 px-3 py-1 text-xs text-brand-100"><span aria-hidden="true">{i}</span>{l}</li>
+            ))}
+          </ul>
+          <ul className="flex flex-wrap justify-center gap-2" aria-label="Accepted payments">
+            {PAYMENTS.map((l) => (
+              <li key={l} className="rounded-md bg-white px-2.5 py-1 text-[11px] font-bold tracking-wide text-brand-900 shadow-sm">{l}</li>
+            ))}
           </ul>
         </div>
       </div>

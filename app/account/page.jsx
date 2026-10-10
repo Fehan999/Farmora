@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
+import Avatar from "@/components/Avatar";
 import RequireRole from "@/components/RequireRole";
 import StatCard from "@/components/StatCard";
 import useData from "@/components/useData";
@@ -9,6 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useShop } from "@/context/ShopContext";
 import { getOrdersForBuyer } from "@/lib/db";
 import { money } from "@/lib/format";
+import { PAGE_IMAGES } from "@/data/images";
+import { FARMERS } from "@/data/seed";
 
 function Account() {
   const { user, updateUser } = useAuth();
@@ -23,17 +26,22 @@ function Account() {
     toast("Profile updated");
   }
 
+  const farm = user.role === "farmer" ? FARMERS.find((f) => f.id === user.farmerId) : null;
+  const photo = user.avatar || user.photoURL || farm?.avatar || "";
   const spent = (orders || []).filter((o) => o.status !== "cancelled").reduce((s, o) => s + o.total, 0);
 
   return (
     <div className="container-x grid gap-8 py-10 lg:grid-cols-[1fr_2fr]">
       <div className="space-y-4">
-        <div className="card p-6 text-center">
-          <div className="mx-auto grid h-20 w-20 place-items-center rounded-full bg-brand-100 text-3xl font-bold text-brand-700">{user.name?.[0]}</div>
-          <h2 className="mt-3 text-lg font-bold">{user.name}</h2>
-          <p className="text-sm text-gray-500">{user.email}</p>
-          <span className={`badge mt-2 capitalize ${isAdmin ? "bg-purple-100 text-purple-700" : "bg-brand-50 text-brand-700"}`}>{isAdmin ? "Administrator" : user.role}</span>
-          {user.demo && <p className="mt-2 text-xs text-amber-600">Demo session</p>}
+        <div className="card overflow-hidden text-center">
+          <div className="h-20 bg-gradient-to-r from-brand-600 to-brand-800" />
+          <div className="-mt-10 px-6 pb-6">
+            <Avatar src={photo} name={user.name} sizes="80px" text="text-3xl" className="mx-auto h-20 w-20 border-4 border-white shadow-md" />
+            <h2 className="mt-3 text-lg font-bold">{user.name}</h2>
+            <p className="text-sm text-gray-500">{user.email}</p>
+            <span className={`badge mt-2 capitalize ${isAdmin ? "bg-purple-100 text-purple-700" : "bg-brand-50 text-brand-700"}`}>{isAdmin ? "Administrator" : user.role}</span>
+            {user.demo && <p className="mt-2 text-xs text-amber-600">Demo session</p>}
+          </div>
         </div>
         {isAdmin ? (
           <div className="card space-y-3 p-6 text-sm">
@@ -67,7 +75,7 @@ function Account() {
 export default function AccountPage() {
   return (
     <>
-      <PageHeader title="My account" crumbs={[{ label: "Account" }]} />
+      <PageHeader title="My account" subtitle="Manage your profile, orders and saved favourites." crumbs={[{ label: "Account" }]} image={PAGE_IMAGES.account} imageAlt="Green pasture on a family dairy farm" />
       <RequireRole roles={["buyer", "farmer", "admin"]}><Account /></RequireRole>
     </>
   );

@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Shipping & Returns | Farmora" };
+export const metadata = { title: "Shipping & Returns", description: "Farmora's 3-day delivery promise, delivery fees (free over $50, otherwise $4.99), live order tracking and our 48-hour freshness guarantee.", alternates: { canonical: "/shipping" }, openGraph: { type: "website", siteName: "Farmora", locale: "en_US", url: "/shipping", title: "Shipping & Returns", description: "Farmora's 3-day delivery promise, delivery fees (free over $50, otherwise $4.99), live order tracking and our 48-hour freshness guarantee.", images: ["/opengraph-image"] }, twitter: { card: "summary_large_image", title: "Shipping & Returns", description: "Farmora's 3-day delivery promise, delivery fees (free over $50, otherwise $4.99), live order tracking and our 48-hour freshness guarantee.", creator: "Ehan Siddique", images: ["/twitter-image"] } };
 
 export default function Shipping() {
   return <LegalPage title="Shipping & Returns" sections={[

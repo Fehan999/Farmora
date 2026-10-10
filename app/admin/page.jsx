@@ -6,6 +6,7 @@ import DashboardShell from "@/components/DashboardShell";
 import StatCard from "@/components/StatCard";
 import BarChart from "@/components/BarChart";
 import SafeImage from "@/components/SafeImage";
+import Avatar from "@/components/Avatar";
 import ProductForm from "@/components/ProductForm";
 import SaleDetails, { SaleStatus } from "@/components/SaleDetails";
 import useData from "@/components/useData";
@@ -251,7 +252,7 @@ function Admin() {
           <Table head={["User", "Role", "Phone", "Location", "Joined", "Status", ""]}>
             {users.filter((u) => (roleFilter === "all" || u.role === roleFilter) && match(`${u.name} ${u.email}`)).map((u) => (
               <tr key={u.id}>
-                <td className="p-3"><div className="flex items-center gap-3"><SafeImage src={u.avatar || `https://i.pravatar.cc/80?u=${u.id}`} alt={u.name} sizes="36px" className="h-9 w-9 rounded-full object-cover" /><div><p className="font-medium">{u.name}</p><p className="text-xs text-gray-400">{u.email}</p></div></div></td>
+                <td className="p-3"><div className="flex items-center gap-3"><Avatar src={u.avatar} name={u.name} sizes="36px" text="text-xs" className="h-9 w-9" /><div><p className="font-medium">{u.name}</p><p className="text-xs text-gray-400">{u.email}</p></div></div></td>
                 <td className="p-3"><span className={`badge capitalize ${u.role === "admin" ? "bg-purple-100 text-purple-700" : u.role === "farmer" ? "bg-earth-100 text-earth-600" : "bg-sky-100 text-sky-700"}`}>{u.role}</span></td>
                 <td className="whitespace-nowrap p-3">{u.phone || "—"}</td>
                 <td className="p-3">{u.location || "—"}</td>
@@ -275,7 +276,7 @@ function Admin() {
             return (
               <div key={f.id} className="card p-5">
                 <div className="flex gap-4">
-                  <SafeImage src={f.avatar} alt={f.name} sizes="64px" className="h-16 w-16 rounded-xl object-cover" />
+                  <Avatar src={f.avatar} name={f.owner || f.name} sizes="64px" rounded="rounded-xl" text="text-xl" className="h-16 w-16" />
                   <div className="min-w-0 flex-1 text-sm">
                     <Link href={`/farmers/${f.id}`} className="font-semibold hover:text-brand-700">{f.name}</Link> {f.verified ? <span className="badge bg-brand-100 text-brand-700">Verified</span> : <span className="badge bg-amber-100 text-amber-700">Pending</span>}
                     <p className="text-gray-500">{f.owner} · {f.location}</p>
@@ -298,10 +299,13 @@ function Admin() {
         <div className="space-y-3">
           {messages.length === 0 && <div className="card p-10 text-center text-gray-500">No messages yet. Messages from the contact form appear here.</div>}
           {messages.map((m) => (
-            <div key={m.id} className="card p-5">
-              <div className="flex justify-between text-sm"><b>{m.name} <span className="font-normal text-gray-400">&lt;{m.email}&gt;</span></b><span className="text-gray-400">{dateTime(m.createdAt)}</span></div>
-              <p className="mt-1 text-sm font-medium">{m.subject}</p>
-              <p className="mt-2 text-sm text-gray-600">{m.message}</p>
+            <div key={m.id} className="card flex gap-4 p-5">
+              <Avatar name={m.name} text="text-sm" className="h-10 w-10" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap justify-between gap-2 text-sm"><b>{m.name} <span className="font-normal text-gray-400">&lt;{m.email}&gt;</span></b><span className="text-gray-400">{dateTime(m.createdAt)}</span></div>
+                <p className="mt-1 text-sm font-medium">{m.subject}</p>
+                <p className="mt-2 text-sm text-gray-600">{m.message}</p>
+              </div>
             </div>
           ))}
         </div>

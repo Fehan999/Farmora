@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Privacy Policy | Farmora" };
+export const metadata = { title: "Privacy Policy", description: "How Farmora collects, uses and protects your personal information when you shop or sell on the farm-to-table marketplace.", alternates: { canonical: "/privacy" }, openGraph: { type: "website", siteName: "Farmora", locale: "en_US", url: "/privacy", title: "Privacy Policy", description: "How Farmora collects, uses and protects your personal information when you shop or sell on the farm-to-table marketplace.", images: ["/opengraph-image"] }, twitter: { card: "summary_large_image", title: "Privacy Policy", description: "How Farmora collects, uses and protects your personal information when you shop or sell on the farm-to-table marketplace.", creator: "Ehan Siddique", images: ["/twitter-image"] } };
 
 export default function Privacy() {
   return <LegalPage title="Privacy Policy" sections={[

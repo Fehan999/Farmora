@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
 import SafeImage from "@/components/SafeImage";
+import Avatar from "@/components/Avatar";
 import Stars from "@/components/Stars";
 import useData from "@/components/useData";
 import { getProducts, getFarmers, getProductReviews, addReview } from "@/lib/db";
@@ -165,7 +166,7 @@ export default function ProductPage() {
   async function submitReview(e) {
     e.preventDefault();
     if (!form.text.trim()) return;
-    const r = await addReview({ productId: id, rating: form.rating, text: form.text, name: user?.name || "Guest", avatar: `https://i.pravatar.cc/100?u=${user?.uid || "guest"}` });
+    const r = await addReview({ productId: id, rating: form.rating, text: form.text, name: user?.name || "Guest", avatar: "" });
     setReviews((list) => [r, ...list]);
     setForm({ rating: 5, text: "" });
     toast("Thanks for your review!");
@@ -296,7 +297,7 @@ export default function ProductPage() {
           {farmer && (
             <div className="card p-6">
               <div className="flex items-center gap-4">
-                <SafeImage src={farmer.avatar} alt={farmer.name} sizes="64px" className="h-16 w-16 shrink-0 rounded-full object-cover ring-4 ring-brand-50" />
+                <Avatar src={farmer.avatar} name={farmer.owner || farmer.name} sizes="64px" text="text-xl" className="h-16 w-16 ring-4 ring-brand-50" />
                 <div className="min-w-0 flex-1">
                   <p className="text-xs uppercase tracking-wide text-gray-400">Sold by</p>
                   <p className="flex flex-wrap items-center gap-2 font-semibold text-gray-900">
@@ -344,7 +345,7 @@ export default function ProductPage() {
                 {allReviews.map((r) => (
                   <div key={r.id} className="card p-5">
                     <div className="flex items-center gap-3">
-                      <SafeImage src={r.avatar} alt={r.name} sizes="40px" className="h-10 w-10 rounded-full object-cover" />
+                      <Avatar src={r.avatar} name={r.name} sizes="40px" className="h-10 w-10" />
                       <div><p className="text-sm font-semibold">{r.name}</p><p className="text-xs text-gray-400">{date(r.createdAt)}</p></div>
                       <span className="ml-auto"><Stars value={r.rating} /></span>
                     </div>
@@ -391,7 +392,7 @@ export default function ProductPage() {
       <div aria-hidden={!showBar}
         className={`fixed inset-x-0 bottom-0 z-40 border-t border-gray-100 bg-white/95 px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur transition-transform duration-300 lg:hidden ${showBar ? "translate-y-0" : "translate-y-full"}`}>
         <div className="mx-auto flex max-w-7xl items-center gap-3">
-          <SafeImage src={product.image} alt="" sizes="48px" fallbackSrc={category?.image} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+          <SafeImage src={product.image} alt={product.name} sizes="48px" fallbackSrc={category?.image} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-semibold text-gray-900">{product.name}</p>
             <p className="text-sm font-bold text-brand-700">{money(price)} <span className="text-xs font-normal text-gray-500">/ {product.unit}</span>{product.discount > 0 && <span className="ml-1 text-xs font-normal text-gray-400 line-through">{money(product.price)}</span>}</p>

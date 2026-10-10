@@ -2,11 +2,24 @@
 import Link from "next/link";
 import ProductCard from "@/components/ProductCard";
 import SafeImage from "@/components/SafeImage";
+import Avatar from "@/components/Avatar";
 import Stars from "@/components/Stars";
 import useData from "@/components/useData";
 import { getProducts, getFarmers } from "@/lib/db";
 import { CATEGORIES, REVIEWS } from "@/data/seed";
-import { SITE_IMAGES } from "@/data/images";
+import { SITE_IMAGES, PAGE_IMAGES } from "@/data/images";
+
+const catImage = (slug) => CATEGORIES.find((c) => c.slug === slug)?.image || "";
+const HERO_MAIN = SITE_IMAGES.heroMain || catImage("vegetables");
+const HERO_SECOND = SITE_IMAGES.heroSecondary || catImage("fruits");
+const HOW_IMAGE = PAGE_IMAGES.farmers || SITE_IMAGES.about || catImage("vegetables");
+const SELL_IMAGE = SITE_IMAGES.sell || PAGE_IMAGES.farmers || catImage("vegetables");
+const STEPS = [
+  ["🧑‍🌾", "Farmers list", "Local farmers publish their fresh harvest with photos and prices."],
+  ["🛒", "You shop", "Browse by farm or category and fill your basket."],
+  ["📦", "Farm packs", "Your order is packed at the farm within hours."],
+  ["🏡", "Delivered", "At your door in 3 days with live tracking."],
+];
 
 export default function Home() {
   const { data } = useData(async () => {
@@ -18,6 +31,9 @@ export default function Home() {
   const farmerOf = (id) => farmers.find((f) => f.id === id);
   const featured = products.filter((p) => p.featured).slice(0, 8);
   const deals = products.filter((p) => p.discount > 0).slice(0, 4);
+  const countOf = (slug) => products.filter((p) => p.category === slug).length;
+  const imageOf = (c) => c.image || products.find((p) => p.category === c.slug && p.image)?.image || "";
+  const coverOf = (f) => f.cover || products.find((p) => p.farmerId === f.id && p.image)?.image || "";
 
   return (
     <>
@@ -37,11 +53,18 @@ export default function Home() {
                 <div key={l}><p className="text-3xl font-bold">{n}</p><p className="text-sm text-brand-200">{l}</p></div>
               ))}
             </div>
+            <div className="relative mt-10 lg:hidden">
+              <SafeImage src={HERO_MAIN} alt="Fresh vegetables from local farms" sizes="(max-width: 1024px) 92vw, 0px" className="h-56 w-full rounded-3xl object-cover shadow-2xl sm:h-72" />
+              <div className="absolute -bottom-4 left-4 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-gray-800 shadow-xl">
+                <span className="text-2xl">🚚</span>
+                <div><p className="text-sm font-bold">Delivered in 72 hours</p><p className="text-xs text-gray-500">Track every step live</p></div>
+              </div>
+            </div>
           </div>
           <div className="relative hidden lg:block">
             <div className="grid grid-cols-2 gap-4">
-              <SafeImage src={SITE_IMAGES.heroMain} alt="Fresh vegetables from local farms" priority sizes="(max-width: 1024px) 0px, 300px" className="h-80 w-full rounded-3xl object-cover shadow-2xl" />
-              <SafeImage src={SITE_IMAGES.heroSecondary} alt="Farmer holding fresh harvest" priority sizes="(max-width: 1024px) 0px, 300px" className="mt-12 h-80 w-full rounded-3xl object-cover shadow-2xl" />
+              <SafeImage src={HERO_MAIN} alt="Fresh vegetables from local farms" priority sizes="(max-width: 1024px) 0px, 300px" className="h-80 w-full rounded-3xl object-cover shadow-2xl" />
+              <SafeImage src={HERO_SECOND} alt="Farmer holding fresh harvest" priority sizes="(max-width: 1024px) 0px, 300px" className="mt-12 h-80 w-full rounded-3xl object-cover shadow-2xl" />
             </div>
             <div className="absolute -bottom-4 left-8 flex items-center gap-3 rounded-2xl bg-white p-4 text-gray-800 shadow-xl">
               <span className="text-3xl">🚚</span>
@@ -52,7 +75,7 @@ export default function Home() {
       </section>
 
       <section className="container-x -mt-8 relative z-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {[["🌱", "Farm Fresh", "Harvested days, not weeks, ago"], ["🚚", "3-Day Delivery", "Live tracking on every order"], ["🤝", "Fair Trade", "Farmers keep 85% of each sale"], ["🔒", "Secure Checkout", "Card or cash on delivery"]].map(([i, t, d]) => (
+        {[["🌱", "Farm Fresh", "Harvested days, not weeks, ago"], ["🚚", "3-Day Delivery", "Live tracking on every order"], ["🤝", "Fair Trade", "Farmers keep 90% of each sale"], ["🔒", "Secure Checkout", "Card or cash on delivery"]].map(([i, t, d]) => (
           <div key={t} className="card flex items-center gap-4 p-5">
             <span className="grid h-12 w-12 place-items-center rounded-xl bg-brand-50 text-2xl">{i}</span>
             <div><p className="font-semibold">{t}</p><p className="text-xs text-gray-500">{d}</p></div>
@@ -65,14 +88,28 @@ export default function Home() {
           <div><p className="font-semibold text-earth-600">Browse</p><h2 className="font-display text-3xl font-bold text-brand-900">Shop by category</h2></div>
           <Link href="/categories" className="text-sm font-semibold text-brand-700 hover:underline">View all →</Link>
         </div>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-8">
-          {CATEGORIES.map((c) => (
-            <Link key={c.slug} href={`/shop?category=${c.slug}`} className="card group flex flex-col items-center p-5 text-center transition hover:-translate-y-1 hover:border-brand-200 hover:shadow-md">
-              <span className="text-4xl transition group-hover:scale-110">{c.icon}</span>
-              <span className="mt-3 text-sm font-semibold">{c.name}</span>
-              <span className="text-xs text-gray-400">{products.filter((p) => p.category === c.slug).length} items</span>
-            </Link>
-          ))}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+          {CATEGORIES.map((c) => {
+            const img = imageOf(c);
+            return (
+              <Link key={c.slug} href={`/shop?category=${c.slug}`} className="group relative isolate block aspect-[4/5] overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 to-brand-800 shadow-sm ring-1 ring-black/5 transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:aspect-[4/3]">
+                {img ? (
+                  <SafeImage src={img} alt={`${c.name} from local farms`} sizes="(max-width: 768px) 46vw, (max-width: 1280px) 24vw, 300px" className="absolute inset-0 -z-10 h-full w-full object-cover transition duration-700 group-hover:scale-110" />
+                ) : (
+                  <span className="absolute inset-0 -z-10 grid place-items-center text-7xl opacity-40">{c.icon}</span>
+                )}
+                <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
+                <span className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-xl shadow-md backdrop-blur transition group-hover:scale-110">{c.icon}</span>
+                <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                  <h3 className="font-semibold leading-tight drop-shadow sm:text-lg">{c.name}</h3>
+                  <p className="mt-1 flex items-center justify-between text-xs text-white/80">
+                    <span>{data ? `${countOf(c.slug)} items` : "Fresh picks"}</span>
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-sm backdrop-blur transition group-hover:translate-x-1 group-hover:bg-white group-hover:text-brand-800">→</span>
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
@@ -108,16 +145,40 @@ export default function Home() {
       </section>
 
       <section className="container-x mt-20">
-        <div className="text-center"><p className="font-semibold text-earth-600">Simple & transparent</p><h2 className="font-display text-3xl font-bold text-brand-900">How Farmora works</h2></div>
-        <div className="mt-10 grid gap-6 md:grid-cols-4">
-          {[["🧑‍🌾", "Farmers list", "Local farmers publish their fresh harvest with photos and prices."], ["🛒", "You shop", "Browse by farm or category and fill your basket."], ["📦", "Farm packs", "Your order is packed at the farm within hours."], ["🏡", "Delivered", "At your door in 3 days with live tracking."]].map(([i, t, d], idx) => (
-            <div key={t} className="card relative p-6 text-center">
-              <span className="absolute right-4 top-3 text-5xl font-bold text-brand-50">{idx + 1}</span>
-              <span className="text-5xl">{i}</span>
-              <h3 className="mt-4 font-semibold">{t}</h3>
-              <p className="mt-1 text-sm text-gray-500">{d}</p>
+        <div className="grid items-center gap-10 lg:grid-cols-[5fr_7fr]">
+          <div className="relative">
+            <div className="relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 shadow-xl">
+              {HOW_IMAGE ? (
+                <SafeImage src={HOW_IMAGE} alt="Fresh harvest on a Farmora partner farm" sizes="(max-width: 1024px) 92vw, 500px" className="h-72 w-full object-cover sm:h-96 lg:h-[30rem]" />
+              ) : (
+                <div className="grid h-72 place-items-center text-8xl sm:h-96 lg:h-[30rem]">🧑‍🌾</div>
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-900/70 via-transparent to-transparent" />
+              <div className="absolute bottom-5 left-5 right-5 text-white">
+                <p className="text-sm text-brand-100">Farm to door in</p>
+                <p className="font-display text-4xl font-bold">72 hours</p>
+              </div>
             </div>
-          ))}
+            <div className="absolute -right-3 -top-4 hidden items-center gap-2 rounded-2xl bg-white px-4 py-3 shadow-xl sm:flex">
+              <span className="text-2xl">🤝</span>
+              <div><p className="text-sm font-bold text-gray-800">Direct from farmers</p><p className="text-xs text-gray-500">No middlemen, fair prices</p></div>
+            </div>
+          </div>
+          <div>
+            <p className="font-semibold text-earth-600">Simple & transparent</p>
+            <h2 className="font-display text-3xl font-bold text-brand-900">How Farmora works</h2>
+            <p className="mt-2 max-w-xl text-gray-500">From the field to your kitchen in four simple steps, with every order tracked live along the way.</p>
+            <div className="mt-8 grid gap-5 sm:grid-cols-2">
+              {STEPS.map(([i, t, d], idx) => (
+                <div key={t} className="card relative p-6">
+                  <span className="absolute right-4 top-3 text-5xl font-bold text-brand-50">{idx + 1}</span>
+                  <span className="grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-3xl">{i}</span>
+                  <h3 className="mt-4 font-semibold">{t}</h3>
+                  <p className="mt-1 text-sm text-gray-500">{d}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -128,10 +189,12 @@ export default function Home() {
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {farmers.slice(0, 4).map((f) => (
-            <Link key={f.id} href={`/farmers/${f.id}`} className="card overflow-hidden transition hover:shadow-lg">
-              <SafeImage src={f.cover} alt={f.name} sizes="(max-width: 640px) 90vw, 300px" className="h-28 w-full object-cover" />
-              <div className="-mt-8 px-5 pb-5">
-                <SafeImage src={f.avatar} alt={f.owner} sizes="64px" className="h-16 w-16 rounded-full border-4 border-white object-cover" />
+            <Link key={f.id} href={`/farmers/${f.id}`} className="card group overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
+              <div className="h-28 overflow-hidden bg-gradient-to-br from-brand-500 to-brand-700">
+                {coverOf(f) && <SafeImage src={coverOf(f)} alt={`Fields and produce at ${f.name}`} sizes="(max-width: 640px) 92vw, (max-width: 1024px) 46vw, 300px" className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />}
+              </div>
+              <div className="relative -mt-8 px-5 pb-5">
+                <Avatar src={f.avatar} name={f.owner} sizes="64px" text="text-lg" className="h-16 w-16 border-4 border-white shadow" />
                 <p className="mt-2 font-semibold">{f.name} {f.verified && <span className="text-brand-600">✔</span>}</p>
                 <p className="text-xs text-gray-500">📍 {f.location}</p>
                 <div className="mt-2 flex items-center gap-1 text-xs"><Stars value={f.rating} size="text-xs" /> {f.rating}</div>
@@ -150,7 +213,7 @@ export default function Home() {
                 <Stars value={r.rating} />
                 <p className="mt-3 text-gray-600">“{r.text}”</p>
                 <div className="mt-4 flex items-center gap-3">
-                  <SafeImage src={r.avatar} alt={r.name} sizes="40px" className="h-10 w-10 rounded-full object-cover" />
+                  <Avatar src={r.avatar} name={r.name} sizes="40px" className="h-10 w-10" />
                   <p className="text-sm font-semibold">{r.name}</p>
                 </div>
               </div>
@@ -160,12 +223,20 @@ export default function Home() {
       </section>
 
       <section className="container-x mt-20">
-        <div className="flex flex-col items-center justify-between gap-6 rounded-3xl bg-brand-800 p-10 text-white md:flex-row">
-          <div>
-            <h2 className="font-display text-3xl font-bold">Are you a farmer?</h2>
-            <p className="mt-2 text-brand-100">Open your digital farm stand in minutes and reach thousands of local buyers.</p>
+        <div className="relative isolate overflow-hidden rounded-3xl bg-brand-800 text-white">
+          {SELL_IMAGE && <SafeImage src={SELL_IMAGE} alt="Farmer tending crops in the field" sizes="(max-width: 1280px) 100vw, 1216px" className="absolute inset-0 -z-10 h-full w-full object-cover" />}
+          <div className="absolute inset-0 -z-10 bg-gradient-to-r from-brand-900/95 via-brand-900/80 to-brand-800/40" />
+          <div className="flex flex-col items-start justify-between gap-6 p-8 sm:p-12 md:flex-row md:items-center">
+            <div className="max-w-xl">
+              <span className="badge bg-white/15 px-3 py-1 text-brand-50">🧑‍🌾 For growers</span>
+              <h2 className="mt-3 font-display text-3xl font-bold sm:text-4xl">Are you a farmer?</h2>
+              <p className="mt-2 text-brand-100">Open your digital farm stand in minutes and reach thousands of local buyers.</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/register?role=farmer" className="btn bg-earth-500 px-8 py-3 text-white hover:bg-earth-600">Start selling</Link>
+              <Link href="/sell" className="btn border border-white/40 px-6 py-3 text-white hover:bg-white/10">Learn more</Link>
+            </div>
           </div>
-          <Link href="/register?role=farmer" className="btn bg-earth-500 px-8 py-3 text-white hover:bg-earth-600">Start selling</Link>
         </div>
       </section>
     </>

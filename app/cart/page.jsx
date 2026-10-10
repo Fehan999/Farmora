@@ -1,10 +1,14 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SafeImage from "@/components/SafeImage";
 import { useShop } from "@/context/ShopContext";
 import { money, SHIPPING_FEE, SHIPPING_FREE_OVER } from "@/lib/format";
+import { PRODUCTS } from "@/data/seed";
+import { PAGE_IMAGES } from "@/data/images";
+
+const PICKS = ["p12", "p1", "p21"].map((id) => PRODUCTS.find((p) => p.id === id)).filter((p) => p?.image);
+const TILT = ["left-0 -rotate-6", "left-14 z-10 -translate-y-2", "left-28 rotate-6"];
 
 export default function Cart() {
   const { cart, updateQty, removeFromCart, cartTotal, clearCart } = useShop();
@@ -13,12 +17,17 @@ export default function Cart() {
 
   return (
     <>
-      <PageHeader title="Your cart" crumbs={[{ label: "Cart" }]} />
+      <PageHeader title="Your cart" subtitle="Review your basket of farm-fresh goodies before checkout." crumbs={[{ label: "Cart" }]} image={PAGE_IMAGES.cart} imageAlt="Freshly baked bread from a farm bakery" />
       <div className="container-x py-10">
         {cart.length === 0 ? (
-          <div className="card py-20 text-center">
-            <div className="text-6xl">🧺</div>
-            <h2 className="mt-4 text-xl font-semibold">Your basket is empty</h2>
+          <div className="card py-16 text-center">
+            <div className="relative mx-auto h-28 w-56">
+              {PICKS.map((p, n) => (
+                <SafeImage key={p.id} src={p.image} alt={p.name} sizes="112px" className={`absolute top-0 h-28 w-28 rounded-2xl border-4 border-white object-cover shadow-lg ${TILT[n]}`} />
+              ))}
+              <span className="absolute -bottom-3 left-1/2 z-20 grid h-11 w-11 -translate-x-1/2 place-items-center rounded-full bg-white text-2xl shadow-md">🧺</span>
+            </div>
+            <h2 className="mt-8 text-xl font-semibold">Your basket is empty</h2>
             <p className="mt-1 text-gray-500">Fresh food is just a few clicks away.</p>
             <Link href="/shop" className="btn-primary mt-6">Start shopping</Link>
           </div>
@@ -30,19 +39,20 @@ export default function Cart() {
                 <div className="mt-2 h-2 rounded-full bg-gray-100"><div className="h-full rounded-full bg-brand-500" style={{ width: `${progress}%` }} /></div>
               </div>
               {cart.map((i) => (
-                <div key={i.productId} className="card flex items-center gap-4 p-4">
-                  <SafeImage src={i.image} className="h-20 w-20 rounded-xl object-cover" />
-                  <div className="flex-1">
-                    <Link href={`/product/${i.productId}`} className="font-semibold hover:text-brand-700">{i.name}</Link>
+                <div key={i.productId} className="card flex items-center gap-3 p-3 sm:gap-4 sm:p-4">
+                  <SafeImage src={i.image} alt={i.name} sizes="80px" className="h-16 w-16 shrink-0 rounded-xl object-cover sm:h-20 sm:w-20" />
+                  <div className="min-w-0 flex-1">
+                    <Link href={`/product/${i.productId}`} className="line-clamp-2 font-semibold hover:text-brand-700">{i.name}</Link>
                     <p className="text-sm text-gray-500">{money(i.price)} / {i.unit}</p>
+                    <p className="mt-0.5 font-bold sm:hidden">{money(i.price * i.qty)}</p>
                   </div>
-                  <div className="flex items-center rounded-full border">
-                    <button onClick={() => updateQty(i.productId, i.qty - 1)} className="px-3 py-1">−</button>
-                    <span className="w-8 text-center text-sm font-semibold">{i.qty}</span>
-                    <button onClick={() => updateQty(i.productId, i.qty + 1)} className="px-3 py-1">+</button>
+                  <div className="flex shrink-0 items-center rounded-full border">
+                    <button type="button" aria-label={`Decrease ${i.name} quantity`} onClick={() => updateQty(i.productId, i.qty - 1)} className="px-2.5 py-1 sm:px-3">−</button>
+                    <span className="w-7 text-center text-sm font-semibold sm:w-8">{i.qty}</span>
+                    <button type="button" aria-label={`Increase ${i.name} quantity`} onClick={() => updateQty(i.productId, i.qty + 1)} className="px-2.5 py-1 sm:px-3">+</button>
                   </div>
-                  <p className="w-20 text-right font-bold">{money(i.price * i.qty)}</p>
-                  <button onClick={() => removeFromCart(i.productId)} className="text-gray-400 hover:text-red-500">✕</button>
+                  <p className="hidden w-20 shrink-0 text-right font-bold sm:block">{money(i.price * i.qty)}</p>
+                  <button type="button" aria-label={`Remove ${i.name}`} onClick={() => removeFromCart(i.productId)} className="shrink-0 p-1 text-gray-400 hover:text-red-500">✕</button>
                 </div>
               ))}
               <button onClick={clearCart} className="text-sm text-red-600 hover:underline">Clear cart</button>

@@ -1,0 +1,93 @@
+name: Screenshots
+
+on:
+  push:
+    paths-ignore:
+      - "screenshots/**"
+      - "docs/**"
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Capture screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: |
+          npm i --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build
+
+      - name: Start server
+        run: |
+          nohup npx next start -p 3000 > next.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://localhost:3000; then
+              echo "Server is up after $i attempt(s)"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Server did not start in time"
+          cat next.log
+          exit 1
+
+      - name: Take screenshots
+        run: npm run screenshots
+        env:
+          BASE_URL: http://localhost:3000
+          OUT_DIR: screenshots
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: farmora-screenshots
+          path: screenshots
+          if-no-files-found: warn
+
+      - name: Publish to screenshots branch
+        env:
+          PUSH_URL: https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        run: |
+          shopt -s nullglob
+          files=(screenshots/*)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "No screenshots to publish"
+            exit 0
+          fi
+          tmp="$(mktemp -d)"
+          cp -R screenshots/* "$tmp"/
+          cd "$tmp"
+          git init -q
+          git checkout -q -b screenshots
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "update screenshots"
+          git push -f "$PUSH_URL" HEAD:screenshots

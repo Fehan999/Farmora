@@ -1,0 +1,20 @@
+/* TEAM */
+Designer & Developer: Ehan Siddique
+Role: Full-Stack Web Developer
+GitHub: https://github.com/Fehan999
+Project: Farmora — From Local Farms to Your Door
+Website: https://farmora-smoky.vercel.app
+Source: https://github.com/Fehan999/Farmora
+
+/* THANKS */
+Local farmers everywhere who grow the food we love.
+Photography: Pexels contributors
+Portraits: randomuser.me
+
+/* SITE */
+Last update: 2026/10/10
+Language: English
+Doctype: HTML5
+Standards: HTML5, CSS3, ES2022, Schema.org JSON-LD, Open Graph
+Components: Next.js 14 (App Router), React 18, Tailwind CSS, Firebase Auth & Firestore, Supabase Storage
+Software: Visual Studio Code, Git, GitHub, Vercel

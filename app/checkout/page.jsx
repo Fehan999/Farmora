@@ -8,6 +8,11 @@ import { useShop } from "@/context/ShopContext";
 import { useAuth } from "@/context/AuthContext";
 import { createOrder } from "@/lib/db";
 import { money, SHIPPING_FEE, SHIPPING_FREE_OVER, TAX_RATE, COUPONS } from "@/lib/format";
+import { PRODUCTS } from "@/data/seed";
+import { PAGE_IMAGES } from "@/data/images";
+
+const PICKS = ["p9", "p21", "p17"].map((id) => PRODUCTS.find((p) => p.id === id)).filter((p) => p?.image);
+const TILT = ["left-0 -rotate-6", "left-14 z-10 -translate-y-2", "left-28 rotate-6"];
 
 export default function Checkout() {
   const router = useRouter();
@@ -46,12 +51,24 @@ export default function Checkout() {
   }
 
   if (cart.length === 0) {
-    return <div className="container-x py-24 text-center"><div className="text-6xl">🧺</div><h1 className="mt-4 text-2xl font-bold">Nothing to check out</h1><Link href="/shop" className="btn-primary mt-6">Go shopping</Link></div>;
+    return (
+      <div className="container-x py-24 text-center">
+        <div className="relative mx-auto h-28 w-56">
+          {PICKS.map((p, n) => (
+            <SafeImage key={p.id} src={p.image} alt={p.name} sizes="112px" className={`absolute top-0 h-28 w-28 rounded-2xl border-4 border-white object-cover shadow-lg ${TILT[n]}`} />
+          ))}
+          <span className="absolute -bottom-3 left-1/2 z-20 grid h-11 w-11 -translate-x-1/2 place-items-center rounded-full bg-white text-2xl shadow-md">🧺</span>
+        </div>
+        <h1 className="mt-8 text-2xl font-bold">Nothing to check out</h1>
+        <p className="mt-1 text-gray-500">Your basket is empty. Add some fresh picks first.</p>
+        <Link href="/shop" className="btn-primary mt-6">Go shopping</Link>
+      </div>
+    );
   }
 
   return (
     <>
-      <PageHeader title="Checkout" crumbs={[{ label: "Cart", href: "/cart" }, { label: "Checkout" }]} />
+      <PageHeader title="Checkout" subtitle="Almost there. Your farmers will start packing as soon as you order." crumbs={[{ label: "Cart", href: "/cart" }, { label: "Checkout" }]} image={PAGE_IMAGES.checkout} imageAlt="Farm fresh milk, cheese and eggs" />
       <form onSubmit={placeOrder} className="container-x grid gap-8 py-10 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           {!user && (
@@ -92,7 +109,7 @@ export default function Checkout() {
           <div className="max-h-64 space-y-3 overflow-auto">
             {cart.map((i) => (
               <div key={i.productId} className="flex items-center gap-3 text-sm">
-                <SafeImage src={i.image} className="h-12 w-12 rounded-lg object-cover" />
+                <SafeImage src={i.image} alt={i.name} sizes="48px" className="h-12 w-12 rounded-lg object-cover" />
                 <span className="flex-1">{i.name} <span className="text-gray-400">× {i.qty}</span></span>
                 <span className="font-medium">{money(i.price * i.qty)}</span>
               </div>

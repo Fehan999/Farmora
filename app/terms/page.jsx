@@ -1,6 +1,6 @@
 import LegalPage from "@/components/LegalPage";
 
-export const metadata = { title: "Terms of Service | Farmora" };
+export const metadata = { title: "Terms of Service", description: "The terms that govern buying and selling on Farmora, the farm-to-table marketplace connecting independent local farmers with buyers.", alternates: { canonical: "/terms" }, openGraph: { type: "website", siteName: "Farmora", locale: "en_US", url: "/terms", title: "Terms of Service", description: "The terms that govern buying and selling on Farmora, the farm-to-table marketplace connecting independent local farmers with buyers.", images: ["/opengraph-image"] }, twitter: { card: "summary_large_image", title: "Terms of Service", description: "The terms that govern buying and selling on Farmora, the farm-to-table marketplace connecting independent local farmers with buyers.", creator: "Ehan Siddique", images: ["/twitter-image"] } };
 
 export default function Terms() {
   return <LegalPage title="Terms of Service" sections={[
