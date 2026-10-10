@@ -39,6 +39,7 @@ export function AuthProvider({ children }) {
   const [user, setUserState] = useState(null);
   const [loading, setLoading] = useState(true);
   const userRef = useRef(null);
+  const ignoreFirebase = useRef(false);
 
   function setUser(next) {
     userRef.current = next;
@@ -48,7 +49,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const cached = readSession();
-    if (cached) { userRef.current = cached; setUserState(cached); }
+    if (cached) { userRef.current = cached; setUserState(cached); ignoreFirebase.current = !!cached.demo; }
     setLoading(false);
 
     let unsub = () => {};
@@ -60,6 +61,7 @@ export function AuthProvider({ children }) {
         if (cancelled) return;
         unsub = sdk.onAuthStateChanged(auth, async (fbUser) => {
           if (fbUser) {
+            if (ignoreFirebase.current) { sdk.signOut(auth).catch(() => {}); return; }
             const base = buildUser(fbUser, getCachedProfile(fbUser.uid) || {});
             setUser(base);
             const remoteProfile = await fetchRemoteProfile(fbUser.uid);
@@ -76,11 +78,13 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(email, password) {
+    ignoreFirebase.current = false;
     const { auth, sdk } = await getAuthClient();
     await timeout(sdk.signInWithEmailAndPassword(auth, email, password));
   }
 
   async function register({ name, email, password, role, farmName, location, phone }) {
+    ignoreFirebase.current = false;
     const { auth, sdk } = await getAuthClient();
     const cred = await timeout(sdk.createUserWithEmailAndPassword(auth, email, password));
     const profile = {
@@ -99,15 +103,16 @@ export function AuthProvider({ children }) {
       uid: `demo-${role}`, id: `demo-${role}`, email: acc.email, name: acc.name,
       role: acc.role, farmerId: acc.farmerId || `demo-${role}`, demo: true,
     };
-    try {
-      const { auth, sdk } = await getAuthClient();
-      if (auth.currentUser) await sdk.signOut(auth).catch(() => {});
-    } catch {}
+    ignoreFirebase.current = true;
     setUser(session);
+    getAuthClient().then(({ auth, sdk }) => {
+      if (auth.currentUser && ignoreFirebase.current) return sdk.signOut(auth);
+    }).catch(() => {});
     return session;
   }
 
   async function logout() {
+    ignoreFirebase.current = false;
     setUser(null);
     try {
       const { auth, sdk } = await getAuthClient();
@@ -121,9 +126,17 @@ export function AuthProvider({ children }) {
   }
 
   async function updateUser(data) {
-    if (!user) return;
-    await saveUserProfile(user.uid, data);
-    setUser({ ...user, ...data });
+    const current = userRef.current;
+    if (!current) return;
+    const next = { ...current, ...data };
+    if (!current.demo) {
+      await saveUserProfile(current.uid, {
+        name: current.name, email: current.email, role: current.role,
+        ...(current.farmerId ? { farmerId: current.farmerId } : {}),
+        ...data,
+      });
+    }
+    setUser(next);
   }
 
   return (

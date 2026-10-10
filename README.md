@@ -24,7 +24,7 @@ A few other things worth knowing:
 
 ## Screenshots
 
-Pages that need a login (order tracking and the two dashboards) were captured while signed in as the matching demo account.
+Pages that need a login (orders, order tracking, account and the dashboards) were captured while signed in as the matching demo account. The cart, checkout and wishlist shots were taken as the demo customer with a few products already added.
 
 **Live 3-day delivery tracker**
 
@@ -36,28 +36,39 @@ Pages that need a login (order tracking and the two dashboards) were captured wh
 
 <table>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/home.png"><img src="./screenshots/home.png" alt="Home page" width="200"></a><br><sub>Home</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/shop.png"><img src="./screenshots/shop.png" alt="Shop page with filters" width="200"></a><br><sub>Shop</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/categories.png"><img src="./screenshots/categories.png" alt="Categories page" width="200"></a><br><sub>Categories</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/product.png"><img src="./screenshots/product.png" alt="Product page" width="200"></a><br><sub>Product</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/home.png"><img src="./screenshots/home.png" alt="Home page" width="160"></a><br><sub>Home</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/shop.png"><img src="./screenshots/shop.png" alt="Shop page with filters" width="160"></a><br><sub>Shop</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/categories.png"><img src="./screenshots/categories.png" alt="Categories page" width="160"></a><br><sub>Categories</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/product.png"><img src="./screenshots/product.png" alt="Product page" width="160"></a><br><sub>Product</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmers.png"><img src="./screenshots/farmers.png" alt="Farmers directory" width="160"></a><br><sub>Farmers</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/farmers.png"><img src="./screenshots/farmers.png" alt="Farmers directory" width="200"></a><br><sub>Farmers</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/farmer-profile.png"><img src="./screenshots/farmer-profile.png" alt="Farmer profile page" width="200"></a><br><sub>Farm profile</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/cart.png"><img src="./screenshots/cart.png" alt="Shopping cart" width="200"></a><br><sub>Cart</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/checkout.png"><img src="./screenshots/checkout.png" alt="Checkout page" width="200"></a><br><sub>Checkout</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmer-profile.png"><img src="./screenshots/farmer-profile.png" alt="Farmer profile page" width="160"></a><br><sub>Farm profile</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/cart.png"><img src="./screenshots/cart.png" alt="Shopping cart" width="160"></a><br><sub>Cart</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/checkout.png"><img src="./screenshots/checkout.png" alt="Checkout page" width="160"></a><br><sub>Checkout</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/orders.png"><img src="./screenshots/orders.png" alt="Order history" width="160"></a><br><sub>My orders</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/track.png"><img src="./screenshots/track.png" alt="Public order tracking page" width="160"></a><br><sub>Track an order</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/login.png"><img src="./screenshots/login.png" alt="Login page with role picker" width="200"></a><br><sub>Login</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/register.png"><img src="./screenshots/register.png" alt="Register page" width="200"></a><br><sub>Register</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/farmer-dashboard.png"><img src="./screenshots/farmer-dashboard.png" alt="Farmer dashboard" width="200"></a><br><sub>Farmer dashboard</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/admin-sales.png"><img src="./screenshots/admin-sales.png" alt="Admin sales tab" width="200"></a><br><sub>Admin sales</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/wishlist.png"><img src="./screenshots/wishlist.png" alt="Wishlist" width="160"></a><br><sub>Wishlist</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/account.png"><img src="./screenshots/account.png" alt="Account settings" width="160"></a><br><sub>Account</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/login.png"><img src="./screenshots/login.png" alt="Login page with role picker" width="160"></a><br><sub>Login</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/register.png"><img src="./screenshots/register.png" alt="Register page" width="160"></a><br><sub>Register</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/sell.png"><img src="./screenshots/sell.png" alt="Sell on Farmora page" width="160"></a><br><sub>Sell on Farmora</sub></td>
   </tr>
   <tr>
-    <td align="center" valign="top"><a href="./screenshots/about.png"><img src="./screenshots/about.png" alt="About page" width="200"></a><br><sub>About</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/contact.png"><img src="./screenshots/contact.png" alt="Contact page" width="200"></a><br><sub>Contact</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/blog.png"><img src="./screenshots/blog.png" alt="Blog page" width="200"></a><br><sub>Blog</sub></td>
-    <td align="center" valign="top"><a href="./screenshots/faq.png"><img src="./screenshots/faq.png" alt="FAQ page" width="200"></a><br><sub>FAQ</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmer-dashboard.png"><img src="./screenshots/farmer-dashboard.png" alt="Farmer dashboard" width="160"></a><br><sub>Farmer dashboard</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/farmer-products.png"><img src="./screenshots/farmer-products.png" alt="Farmer dashboard products tab" width="160"></a><br><sub>Farmer products</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/admin-sales.png"><img src="./screenshots/admin-sales.png" alt="Admin sales tab" width="160"></a><br><sub>Admin sales</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/admin-users.png"><img src="./screenshots/admin-users.png" alt="Admin users tab" width="160"></a><br><sub>Admin users</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/about.png"><img src="./screenshots/about.png" alt="About page" width="160"></a><br><sub>About</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><a href="./screenshots/contact.png"><img src="./screenshots/contact.png" alt="Contact page" width="160"></a><br><sub>Contact</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/blog.png"><img src="./screenshots/blog.png" alt="Blog page" width="160"></a><br><sub>Blog</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/faq.png"><img src="./screenshots/faq.png" alt="FAQ page" width="160"></a><br><sub>FAQ</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/terms.png"><img src="./screenshots/terms.png" alt="Terms of service page" width="160"></a><br><sub>Terms</sub></td>
+    <td align="center" valign="top"><a href="./screenshots/not-found.png"><img src="./screenshots/not-found.png" alt="404 page" width="160"></a><br><sub>404 page</sub></td>
   </tr>
 </table>
 
@@ -100,7 +111,8 @@ Click a thumbnail to see the full page.
 ### Admin and the 10% commission
 
 - Farmora keeps 10% of the product total on every order and the farmer keeps the other 90%
-- The admin overview only shows what the platform actually earns: commission, gross sales, what's been paid out to farmers, a 7-day commission chart, earnings by category and top products
+- That 10% commission is the platform's revenue, and it's the headline number on the admin overview. Sales volume and farmer payouts are shown next to it for context, not counted as revenue
+- The overview also has a 7-day commission chart, commission by category, the latest sales and the top products
 - A sales tab with the order value, commission and farmer payout for every order, filters, and a CSV export
 - Product moderation (approve, hide, reject, feature, edit, delete), user management (suspend or reactivate), a farmers overview and the contact form inbox
 
@@ -115,7 +127,8 @@ Click a thumbnail to see the full page.
 
 - Every public page has its own title, description, canonical URL, Open Graph and Twitter tags
 - Structured data (JSON-LD) for the website, the organisation, me as the author, and every product with price, stock, delivery time and rating
-- A generated `sitemap.xml` with all products and farms, and a `robots.txt` that keeps carts, checkout and dashboards out of search results
+- Blog posts get their own pages with article metadata (author, publish date, cover image) and `BlogPosting` structured data
+- A generated `sitemap.xml` with all products, farms and blog posts, and a `robots.txt` that keeps carts, checkout and dashboards out of search results
 - Open Graph and Twitter preview images generated with `next/og`, a web app manifest and a `humans.txt`
 
 ## Tech stack
@@ -148,7 +161,6 @@ You'll need Node.js 18.17 or newer.
 git clone https://github.com/Fehan999/Farmora.git
 cd Farmora
 npm install
-cp .env.example .env.local
 npm run dev
 ```
 
@@ -160,7 +172,15 @@ For a production build:
 npm run build && npm start
 ```
 
-Fill `.env.local` with your own Firebase and Supabase keys (see below). If you deploy under your own domain, also set `NEXT_PUBLIC_SITE_URL` so canonical URLs, the sitemap and structured data point at the right place.
+You don't need any environment variables to try it. When a variable is missing or empty, `lib/firebase.js` and `lib/supabase.js` fall back to the config of my demo Firebase project and Supabase bucket that's bundled with the code, and `lib/seo.js` falls back to the live URL.
+
+To use your own backend, copy the example file and replace the placeholders with your own Firebase and Supabase keys (see below):
+
+```bash
+cp .env.example .env.local
+```
+
+Delete any line you don't fill in. A placeholder like `your-firebase-api-key` counts as a real value, so it would replace the fallback instead of using it. If you deploy under your own domain, also change `NEXT_PUBLIC_SITE_URL` so canonical URLs, the sitemap and structured data point at the right place.
 
 ### Firebase setup
 
@@ -171,7 +191,7 @@ Fill `.env.local` with your own Firebase and Supabase keys (see below). If you d
 ### Supabase setup
 
 1. Create a project and copy the URL and publishable key into `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
-2. In **Storage**, create a **public** bucket called `farmora`.
+2. In **Storage**, create a **public** bucket called `farmora`. If you pick another name, put it in `NEXT_PUBLIC_SUPABASE_BUCKET`.
 3. Add a policy that lets the browser upload to it:
 
 ```sql
@@ -187,15 +207,21 @@ That's fine for a demo. For a real shop I'd only allow uploads from signed-in fa
 
 ## Screenshots script
 
-The images in `screenshots/` aren't taken by hand. Running
+The images in `screenshots/` aren't taken by hand. Playwright isn't in `package.json`, so install it and its Chromium build first (the `--no-save` keeps it out of the lockfile):
+
+```bash
+npm i --no-save playwright@1.56.1 && npx playwright install chromium
+```
+
+Then, with the site running on [http://localhost:3000](http://localhost:3000) in another terminal (`npm run dev`, or `npm run build && npm start`), run:
 
 ```bash
 npm run screenshots
 ```
 
-opens the site in headless Chromium with Playwright, signs in as the demo customer, farmer or admin when a page needs it, fills the cart for the cart and checkout shots, and saves each page at 1440×900 (full page) plus three phone shots at 390×844.
+It opens the site in headless Chromium, signs in as the demo customer, farmer or admin when a page needs it, fills the cart and wishlist for those shots, and saves each page at 1440×900 (full page) plus three phone shots at 390×844. It also checks that every photo in `data/photos.js` still loads, and writes the results to `screenshots/image-report.json` along with contact sheets of all the photos. Set `BASE_URL` to point it at another address, like the live site.
 
-There's also a GitHub Action that runs the same script and commits the new images, so the README stays up to date after changes without me having to do it locally.
+There's also a GitHub Action that builds the site and runs the same script whenever I push code changes. It uploads the images as a build artifact and pushes them to a separate `screenshots` branch, so I can check fresh shots and copy the ones I want into `screenshots/` without running anything locally.
 
 ## Project structure
 
@@ -203,7 +229,7 @@ There's also a GitHub Action that runs the same script and commits the new image
 app/            pages (App Router), metadata, sitemap, robots, OG images
 components/     UI pieces: SafeImage, DeliveryTracker, dashboards, loaders
 context/        AuthContext (sessions, demo logins), ShopContext (cart, wishlist)
-data/           seed farms, products and orders, Pexels photo ids
+data/           seed farms, products and orders, blog posts, Pexels photo ids
 lib/            db.js (local-first data), firebase, supabase, seo, stats, delivery
 public/         humans.txt
 screenshots/    generated by npm run screenshots

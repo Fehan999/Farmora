@@ -6,7 +6,7 @@ import Avatar from "@/components/Avatar";
 import Stars from "@/components/Stars";
 import useData from "@/components/useData";
 import { getProducts, getFarmers } from "@/lib/db";
-import { CATEGORIES, REVIEWS } from "@/data/seed";
+import { CATEGORIES, FARMERS, PRODUCTS, REVIEWS } from "@/data/seed";
 import { SITE_IMAGES, PAGE_IMAGES } from "@/data/images";
 
 const catImage = (slug) => CATEGORIES.find((c) => c.slug === slug)?.image || "";
@@ -14,6 +14,7 @@ const HERO_MAIN = SITE_IMAGES.heroMain || catImage("vegetables");
 const HERO_SECOND = SITE_IMAGES.heroSecondary || catImage("fruits");
 const HOW_IMAGE = PAGE_IMAGES.farmers || SITE_IMAGES.about || catImage("vegetables");
 const SELL_IMAGE = SITE_IMAGES.sell || PAGE_IMAGES.farmers || catImage("vegetables");
+const INITIAL_DATA = { products: PRODUCTS.filter((p) => p.status !== "rejected" && p.status !== "hidden"), farmers: FARMERS };
 const STEPS = [
   ["🧑‍🌾", "Farmers list", "Local farmers publish their fresh harvest with photos and prices."],
   ["🛒", "You shop", "Browse by farm or category and fill your basket."],
@@ -25,7 +26,7 @@ export default function Home() {
   const { data } = useData(async () => {
     const [products, farmers] = await Promise.all([getProducts(), getFarmers()]);
     return { products, farmers };
-  });
+  }, [], INITIAL_DATA);
   const products = data?.products || [];
   const farmers = data?.farmers || [];
   const farmerOf = (id) => farmers.find((f) => f.id === id);

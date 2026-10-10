@@ -1,4 +1,5 @@
 import { FARMERS, PRODUCTS } from "@/data/seed";
+import { BLOG_POSTS } from "@/data/blog";
 import { SITE_URL } from "@/lib/seo";
 
 const STATIC_ROUTES = [
@@ -26,5 +27,6 @@ export default function sitemap() {
     ...STATIC_ROUTES.map(([path, priority, freq]) => entry(path, priority, freq)),
     ...PRODUCTS.map((p) => entry(`/product/${p.id}`, p.featured ? 0.8 : 0.7, "weekly")),
     ...FARMERS.map((f) => entry(`/farmers/${f.id}`, 0.6, "weekly")),
+    ...BLOG_POSTS.map((p) => ({ url: `${SITE_URL}/blog/${p.slug}`, lastModified: new Date(`${p.date}T09:00:00.000Z`), changeFrequency: "monthly", priority: 0.5 })),
   ];
 }

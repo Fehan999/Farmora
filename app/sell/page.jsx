@@ -36,7 +36,7 @@ export default function Sell() {
               <li>3. Receive orders and pack them within 6 hours.</li>
               <li>4. Our couriers deliver to buyers within 3 days.</li>
             </ol>
-            <div className="mt-6 flex flex-wrap gap-3"><Link href="/register?role=farmer" className="btn-primary">Create farmer account</Link><Link href="/login" className="btn-outline">Try demo farmer</Link></div>
+            <div className="mt-6 flex flex-wrap gap-3"><Link href="/register?role=farmer" className="btn-primary">Create farmer account</Link><Link href="/login?role=farmer" className="btn-outline">Try demo farmer</Link></div>
           </div>
           <div className="relative min-h-[16rem] bg-gradient-to-br from-brand-500 to-brand-700">
             {START_IMAGE && <SafeImage src={START_IMAGE} alt="Fresh harvest ready to be listed on Farmora" sizes="(max-width: 1024px) 92vw, 600px" className="absolute inset-0 h-full w-full object-cover" />}

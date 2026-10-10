@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AuthShell from "@/components/AuthShell";
 import DemoButton, { Spinner } from "@/components/DemoButton";
 import RoleChooser from "@/components/RoleChooser";
+import { startNav } from "@/components/RouteProgress";
 import { ROLES, dashboardFor, normalizeRole, safeNext } from "@/components/authRoles";
 import { useAuth } from "@/context/AuthContext";
 import { authMessage } from "@/lib/authErrors";
@@ -22,6 +23,7 @@ function SignInForm({ to, disabled, onStart, onFail }) {
     setBusy(true); setError(""); onStart();
     try {
       await login(form.email.trim(), form.password);
+      startNav(to);
       router.push(to);
     } catch (err) {
       setError(authMessage(err)); setBusy(false); onFail();

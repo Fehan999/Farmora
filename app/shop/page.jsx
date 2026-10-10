@@ -4,15 +4,19 @@ import { useSearchParams } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import ProductCard from "@/components/ProductCard";
 import SafeImage from "@/components/SafeImage";
+import Spinner from "@/components/Spinner";
 import useData from "@/components/useData";
+import { useShop } from "@/context/ShopContext";
 import { getProducts, getFarmers } from "@/lib/db";
 import { CATEGORIES } from "@/data/seed";
 import { PAGE_IMAGES } from "@/data/images";
 
 const PER_PAGE = 12;
+const MIN_PRICE_CAP = 30;
 
 function Shop() {
   const params = useSearchParams();
+  const { finalPrice } = useShop();
   const { data } = useData(async () => {
     const [products, farmers] = await Promise.all([getProducts(), getFarmers()]);
     return { products, farmers };
@@ -21,7 +25,7 @@ function Shop() {
   const [category, setCategory] = useState(params.get("category") || "all");
   const [farmer, setFarmer] = useState("all");
   const [sort, setSort] = useState(params.get("sort") || "popular");
-  const [maxPrice, setMaxPrice] = useState(30);
+  const [maxPrice, setMaxPrice] = useState(null);
   const [organic, setOrganic] = useState(false);
   const [inStock, setInStock] = useState(false);
   const [page, setPage] = useState(1);
@@ -34,11 +38,16 @@ function Shop() {
   useEffect(() => setPage(1), [q, category, farmer, sort, maxPrice, organic, inStock]);
 
   const farmers = data?.farmers || [];
+  const priceCap = useMemo(() => {
+    const top = (data?.products || []).reduce((m, p) => Math.max(m, finalPrice(p) || 0), 0);
+    return Math.max(MIN_PRICE_CAP, Math.ceil(top));
+  }, [data]);
+  const priceLimit = maxPrice === null || maxPrice >= priceCap ? Infinity : maxPrice;
   const list = useMemo(() => {
     const l = (data?.products || []).filter((p) =>
       (category === "all" || p.category === category) &&
       (farmer === "all" || p.farmerId === farmer) &&
-      p.price <= maxPrice &&
+      finalPrice(p) <= priceLimit &&
       (!organic || p.organic) &&
       (!inStock || p.stock > 0) &&
       (!q || `${p.name} ${p.description} ${p.category}`.toLowerCase().includes(q.toLowerCase()))
@@ -46,18 +55,18 @@ function Shop() {
     const sorters = {
       popular: (a, b) => b.sold - a.sold,
       rating: (a, b) => b.rating - a.rating,
-      low: (a, b) => a.price - b.price,
-      high: (a, b) => b.price - a.price,
+      low: (a, b) => finalPrice(a) - finalPrice(b),
+      high: (a, b) => finalPrice(b) - finalPrice(a),
       discount: (a, b) => (b.discount || 0) - (a.discount || 0),
       newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
     };
     return [...l].sort(sorters[sort] || sorters.popular);
-  }, [data, q, category, farmer, sort, maxPrice, organic, inStock]);
+  }, [data, q, category, farmer, sort, priceLimit, organic, inStock]);
 
   const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
   const shown = list.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  const reset = () => { setQ(""); setCategory("all"); setFarmer("all"); setMaxPrice(30); setOrganic(false); setInStock(false); };
+  const reset = () => { setQ(""); setCategory("all"); setFarmer("all"); setMaxPrice(null); setOrganic(false); setInStock(false); };
 
   return (
     <>
@@ -91,8 +100,8 @@ function Shop() {
               </select>
             </div>
             <div>
-              <label className="label">Max price: ${maxPrice}</label>
-              <input type="range" min="1" max="30" value={maxPrice} onChange={(e) => setMaxPrice(+e.target.value)} className="w-full accent-brand-600" />
+              <label className="label" htmlFor="shop-max-price">Max price: {priceLimit === Infinity ? "Any price" : `$${priceLimit}`}</label>
+              <input id="shop-max-price" type="range" min="1" max={priceCap} value={priceLimit === Infinity ? priceCap : priceLimit} onChange={(e) => setMaxPrice(+e.target.value >= priceCap ? null : +e.target.value)} className="w-full accent-brand-600" />
             </div>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={organic} onChange={(e) => setOrganic(e.target.checked)} className="accent-brand-600" /> Organic only</label>
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={inStock} onChange={(e) => setInStock(e.target.checked)} className="accent-brand-600" /> In stock</label>
@@ -135,5 +144,5 @@ function Shop() {
 }
 
 export default function ShopPage() {
-  return <Suspense fallback={<div className="container-x py-20">Loading...</div>}><Shop /></Suspense>;
+  return <Suspense fallback={<div className="container-x grid min-h-[60vh] place-items-center py-20"><Spinner label="Loading the shop..." /></div>}><Shop /></Suspense>;
 }

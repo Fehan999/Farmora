@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { srcSetFor } from "@/lib/images";
 
 const FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
@@ -8,11 +8,18 @@ const FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
 
 export default function SafeImage({ src, alt = "", className = "", sizes = "(max-width: 640px) 90vw, 400px", priority = false, fallbackSrc }) {
   const [stage, setStage] = useState(0);
-  const current = stage === 0 ? src : stage === 1 && fallbackSrc ? fallbackSrc : FALLBACK;
+
+  useEffect(() => { setStage(0); }, [src, fallbackSrc]);
+
+  const effective = stage === 0 && !src ? 1 : stage;
+  const current = effective === 0 ? src : effective === 1 && fallbackSrc ? fallbackSrc : FALLBACK;
   const srcSet = current === FALLBACK ? undefined : srcSetFor(current);
 
   function onError() {
-    setStage((s) => (s === 0 && fallbackSrc ? 1 : 2));
+    setStage((s) => {
+      const from = s === 0 && !src ? 1 : s;
+      return from === 0 && fallbackSrc ? 1 : 2;
+    });
   }
 
   return (

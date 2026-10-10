@@ -7,6 +7,7 @@ import ProductForm from "@/components/ProductForm";
 import StatCard from "@/components/StatCard";
 import BarChart from "@/components/BarChart";
 import SafeImage from "@/components/SafeImage";
+import Spinner from "@/components/Spinner";
 import DeliveryTracker from "@/components/DeliveryTracker";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
 import useData from "@/components/useData";
@@ -70,7 +71,7 @@ function Dashboard() {
   return (
     <DashboardShell title={`Hello, ${user.name?.split(" ")[0]} 👋`} subtitle="Manage your farm stand, products and orders." tabs={TABS} tab={tab} setTab={setTab}
       actions={<button onClick={() => setEditing({})} className="btn-primary">＋ Publish product</button>}>
-      {!data ? <p className="text-gray-500">Loading...</p> : (
+      {!data ? <div className="grid min-h-[40vh] place-items-center py-16"><Spinner label="Loading your farm stand..." /></div> : (
         <>
           {tab === "overview" && (
             <div className="space-y-6">
@@ -160,12 +161,12 @@ function Dashboard() {
           {tab === "profile" && (
             <form onSubmit={saveProfile} className="card max-w-2xl space-y-4 p-6">
               <div className="grid gap-4 sm:grid-cols-2">
-                <div><label className="label">Farm name</label><input className="input" value={profile.farmName} onChange={(e) => setProfile({ ...profile, farmName: e.target.value })} /></div>
-                <div><label className="label">Location</label><input className="input" value={profile.location} onChange={(e) => setProfile({ ...profile, location: e.target.value })} /></div>
-                <div><label className="label">Specialty</label><input className="input" value={profile.specialty} onChange={(e) => setProfile({ ...profile, specialty: e.target.value })} /></div>
-                <div><label className="label">Phone</label><input className="input" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></div>
+                <div><label htmlFor="dashboard-farm-name" className="label">Farm name</label><input id="dashboard-farm-name" className="input" value={profile.farmName} onChange={(e) => setProfile({ ...profile, farmName: e.target.value })} /></div>
+                <div><label htmlFor="dashboard-location" className="label">Location</label><input id="dashboard-location" className="input" value={profile.location} onChange={(e) => setProfile({ ...profile, location: e.target.value })} /></div>
+                <div><label htmlFor="dashboard-specialty" className="label">Specialty</label><input id="dashboard-specialty" className="input" value={profile.specialty} onChange={(e) => setProfile({ ...profile, specialty: e.target.value })} /></div>
+                <div><label htmlFor="dashboard-phone" className="label">Phone</label><input id="dashboard-phone" className="input" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} /></div>
               </div>
-              <div><label className="label">About your farm</label><textarea className="input h-32" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} /></div>
+              <div><label htmlFor="dashboard-about-your-farm" className="label">About your farm</label><textarea id="dashboard-about-your-farm" className="input h-32" value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} /></div>
               <div className="flex gap-3"><button className="btn-primary">Save profile</button><Link href={`/farmers/${farmerId}`} className="btn-ghost">View public page →</Link></div>
             </form>
           )}

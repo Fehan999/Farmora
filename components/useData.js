@@ -1,11 +1,13 @@
 "use client";
 import { useEffect, useState, useCallback, useRef } from "react";
 
-export default function useData(loader, deps = []) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function useData(loader, deps = [], initial) {
+  const hasInitial = initial !== undefined;
+  const [data, setData] = useState(hasInitial ? initial : null);
+  const [loading, setLoading] = useState(!hasInitial);
   const loaderRef = useRef(loader);
   const requestRef = useRef(0);
+  const firstRef = useRef(true);
   loaderRef.current = loader;
 
   const run = useCallback(async (silent) => {
@@ -17,7 +19,11 @@ export default function useData(loader, deps = []) {
     setLoading(false);
   }, deps);
 
-  useEffect(() => { run(false); }, [run]);
+  useEffect(() => {
+    const quiet = firstRef.current && hasInitial;
+    firstRef.current = false;
+    run(quiet);
+  }, [run]);
 
   useEffect(() => {
     const onChange = () => run(true);

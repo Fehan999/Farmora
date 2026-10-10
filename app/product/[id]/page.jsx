@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
 import ProductGallery from "@/components/ProductGallery";
 import SafeImage from "@/components/SafeImage";
@@ -11,11 +11,42 @@ import useData from "@/components/useData";
 import { getProducts, getFarmers, getProductReviews, addReview } from "@/lib/db";
 import { useShop } from "@/context/ShopContext";
 import { useAuth } from "@/context/AuthContext";
-import { CATEGORIES, REVIEWS } from "@/data/seed";
+import { BUYERS, CATEGORIES, FARMERS, PRODUCTS } from "@/data/seed";
 import { money, date, SHIPPING_FREE_OVER, SHIPPING_FEE } from "@/lib/format";
 
 const isLive = (p) => p.status !== "rejected" && p.status !== "hidden";
-const arrivalDate = () => new Date(Date.now() + 3 * 864e5).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+const arrivalDate = (now) => new Date(now + 3 * 864e5).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+
+const REVIEW_TEMPLATES = [
+  [5, (name, farm) => `Really impressed with the ${name}. You can tell ${farm} takes real care with everything they produce.`],
+  [5, (name) => `Second time ordering the ${name} and it was just as good as the first. Packed carefully and arrived in perfect condition.`],
+  [4, (name, farm) => `Great quality for the price. I love knowing my ${name} comes straight from ${farm}. Would happily order again.`],
+  [5, (name) => `The ${name} arrived well packed and noticeably fresher than anything at my supermarket. Delivery was right on schedule.`],
+  [5, (name, farm) => `Switched to buying the ${name} on Farmora and haven't looked back. ${farm} is a real gem.`],
+  [4, (name) => `Lovely ${name} with plenty of flavour. Only wish I had ordered a bigger batch the first time.`],
+  [5, (name, farm) => `Ordered the ${name} for a family dinner and everyone asked where it came from. Thank you, ${farm}!`],
+];
+
+const hashId = (value = "") => [...String(value)].reduce((h, ch) => (h * 31 + ch.charCodeAt(0)) % 100003, 7);
+
+function sampleReviewsFor(product, farmer, now) {
+  const h = hashId(product.id);
+  const farm = farmer?.name || "the farm";
+  return [0, 1, 2].map((i) => {
+    const [rating, text] = REVIEW_TEMPLATES[(h + i * 3) % REVIEW_TEMPLATES.length];
+    const buyer = BUYERS[(h + i * 5) % BUYERS.length];
+    const daysAgo = 2 + i * 8 + ((h >> i) % 6);
+    return {
+      id: `sample-${product.id}-${i}`,
+      name: buyer.name,
+      avatar: buyer.avatar,
+      rating: product.rating < 4.5 && i === 0 ? Math.min(rating, 4) : rating,
+      text: text(product.name, farm),
+      createdAt: now ? new Date(now - daysAgo * 864e5).toISOString() : "",
+      verified: true,
+    };
+  });
+}
 
 function Skeleton() {
   return (
@@ -64,23 +95,24 @@ export default function ProductPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { addToCart, toggleWishlist, wishlist, finalPrice, addRecent, recent, toast, cartTotal } = useShop();
+  const initial = useMemo(() => (PRODUCTS.some((p) => p.id === id) ? { products: PRODUCTS, farmers: FARMERS, reviews: [] } : undefined), [id]);
   const { data } = useData(async () => {
     const [products, farmers, reviews] = await Promise.all([getProducts({ includeHidden: true }), getFarmers(), getProductReviews(id)]);
     return { products, farmers, reviews };
-  }, [id]);
+  }, [id], initial);
   const [qty, setQty] = useState(1);
   const [tab, setTab] = useState("description");
   const [reviews, setReviews] = useState([]);
   const [form, setForm] = useState({ rating: 5, text: "" });
   const [showBar, setShowBar] = useState(false);
-  const [arrival, setArrival] = useState("");
+  const [now, setNow] = useState(0);
   const buyRef = useRef(null);
   const tabsRef = useRef(null);
   const product = data?.products.find((p) => p.id === id);
 
   useEffect(() => { if (data) setReviews(data.reviews); }, [data]);
   useEffect(() => { addRecent(id); setQty(1); setTab("description"); }, [id, addRecent]);
-  useEffect(() => { setArrival(arrivalDate()); }, []);
+  useEffect(() => { setNow(Date.now()); }, []);
   useEffect(() => {
     const el = buyRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
@@ -124,9 +156,11 @@ export default function ProductPage() {
   const stockPct = soldOut ? 0 : Math.max(6, Math.min(100, Math.round((product.stock / 150) * 100)));
   const saved = wishlist.includes(product.id);
   const freeLeft = Math.max(0, SHIPPING_FREE_OVER - cartTotal);
-  const sampleReviews = REVIEWS.slice(0, 3).map((r, i) => ({ ...r, id: `s${i}`, createdAt: new Date(Date.now() - (i + 2) * 864e5 * 5).toISOString() }));
+  const arrival = now ? arrivalDate(now) : "";
+  const sampleReviews = sampleReviewsFor(product, farmer, now);
   const ownReviews = reviews.filter((r) => !r.productId || r.productId === product.id);
   const allReviews = [...ownReviews, ...sampleReviews];
+  const totalReviews = Math.max((product.reviewsCount || 0) + ownReviews.length, allReviews.length);
   const highlights = [
     product.organic ? ["🌱", "Certified organic", "Grown without synthetic pesticides or fertilisers."] : ["🌾", "Responsibly grown", "Raised with sustainable, low-input farming practices."],
     farmer && ["🏡", `Straight from ${farmer.name}`, `${farmer.location ? `Produced in ${farmer.location}` : "Produced on a local family farm"}${farmer.since ? `, farming since ${farmer.since}` : ""}.`],
@@ -197,7 +231,7 @@ export default function ProductPage() {
           <div className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
             <Stars value={product.rating} />
             <span className="font-semibold text-gray-800">{product.rating}</span>
-            <button type="button" onClick={openReviews} className="hover:text-brand-700 hover:underline">({product.reviewsCount + ownReviews.length} reviews)</button>
+            <button type="button" onClick={openReviews} className="hover:text-brand-700 hover:underline">({totalReviews} reviews)</button>
             <span>·</span>
             <span>{product.sold} sold</span>
           </div>
@@ -322,7 +356,7 @@ export default function ProductPage() {
           {["description", "reviews", "delivery"].map((t) => (
             <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
               className={`-mb-px shrink-0 border-b-2 px-4 py-3 text-sm font-semibold capitalize ${tab === t ? "border-brand-600 text-brand-700" : "border-transparent text-gray-500 hover:text-gray-700"}`}>
-              {t}{t === "reviews" && ` (${allReviews.length})`}
+              {t}{t === "reviews" && ` (${totalReviews})`}
             </button>
           ))}
         </div>
@@ -342,11 +376,12 @@ export default function ProductPage() {
           {tab === "reviews" && (
             <div className="grid gap-8 md:grid-cols-[1fr_320px]">
               <div className="space-y-4">
+                <p className="text-sm text-gray-500">{totalReviews} reviews · showing latest {allReviews.length}</p>
                 {allReviews.map((r) => (
                   <div key={r.id} className="card p-5">
                     <div className="flex items-center gap-3">
                       <Avatar src={r.avatar} name={r.name} sizes="40px" className="h-10 w-10" />
-                      <div><p className="text-sm font-semibold">{r.name}</p><p className="text-xs text-gray-400">{date(r.createdAt)}</p></div>
+                      <div><p className="text-sm font-semibold">{r.name}</p>{r.createdAt && <p className="text-xs text-gray-400">{date(r.createdAt)}{r.verified && " · Verified buyer"}</p>}</div>
                       <span className="ml-auto"><Stars value={r.rating} /></span>
                     </div>
                     <p className="mt-3 text-sm text-gray-600">{r.text}</p>
@@ -358,7 +393,7 @@ export default function ProductPage() {
                   <span className="text-4xl font-bold text-brand-900">{product.rating}</span>
                   <div>
                     <Stars value={product.rating} />
-                    <p className="text-xs text-gray-500">Based on {product.reviewsCount + ownReviews.length} reviews</p>
+                    <p className="text-xs text-gray-500">Based on {totalReviews} reviews</p>
                   </div>
                 </div>
                 <form onSubmit={submitReview} className="card h-fit space-y-3 p-5">

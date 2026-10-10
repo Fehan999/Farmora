@@ -58,7 +58,7 @@ export default function OrdersPage() {
   return (
     <>
       <PageHeader title="My orders" subtitle="Track every delivery live — each order arrives within 3 days." crumbs={[{ label: "Orders" }]} image={PAGE_IMAGES.orders} imageAlt="Golden grain field at harvest time" />
-      <RequireRole roles={["buyer", "farmer", "admin"]}><Orders /></RequireRole>
+      <RequireRole roles={["buyer", "farmer"]}><Orders /></RequireRole>
     </>
   );
 }

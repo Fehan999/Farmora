@@ -76,8 +76,8 @@ export default function Footer() {
       </div>
       <div className="border-t border-brand-800">
         <div className="container-x flex flex-col items-center justify-between gap-2 py-5 text-xs text-brand-300 sm:flex-row">
-          <p>© {new Date().getFullYear()} Farmora. All rights reserved.</p>
-          <p>Designed & Developed by <span className="font-semibold text-earth-400">Ehan Siddique</span></p>
+          <p suppressHydrationWarning>© {new Date().getFullYear()} Farmora. All rights reserved.</p>
+          <p>Designed & Developed by <a href="https://github.com/Fehan999" target="_blank" rel="author noopener" className="font-semibold text-earth-400 hover:text-earth-100 hover:underline">Ehan Siddique</a></p>
         </div>
       </div>
     </footer>

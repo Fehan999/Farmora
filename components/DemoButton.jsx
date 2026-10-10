@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { startNav } from "./RouteProgress";
 import { ROLES, destinationFor } from "./authRoles";
 
 export function Spinner({ className = "" }) {
@@ -22,6 +23,7 @@ export default function DemoButton({ role, next = "", label, className = "btn-pr
     onStart?.();
     try {
       await demoLogin(role);
+      startNav(to);
       router.push(to);
     } catch {
       setBusy(false);

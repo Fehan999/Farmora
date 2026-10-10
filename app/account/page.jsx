@@ -61,11 +61,11 @@ function Account() {
       <form onSubmit={save} className="card h-fit space-y-4 p-6">
         <h2 className="text-lg font-semibold">Profile settings</h2>
         <div className="grid gap-4 sm:grid-cols-2">
-          <div><label className="label">Full name</label><input className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-          <div><label className="label">Phone</label><input className="input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+          <div><label htmlFor="account-full-name" className="label">Full name</label><input id="account-full-name" className="input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+          <div><label htmlFor="account-phone" className="label">Phone</label><input id="account-phone" className="input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
         </div>
-        <div><label className="label">Location</label><input className="input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
-        <div><label className="label">Bio</label><textarea className="input h-28" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></div>
+        <div><label htmlFor="account-location" className="label">Location</label><input id="account-location" className="input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} /></div>
+        <div><label htmlFor="account-bio" className="label">Bio</label><textarea id="account-bio" className="input h-28" value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></div>
         <button className="btn-primary">Save changes</button>
       </form>
     </div>

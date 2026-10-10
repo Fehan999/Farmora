@@ -16,8 +16,8 @@ export const ROLES = {
     blurb: "See how the marketplace runs behind the scenes.",
     home: "/admin", dashboard: "/admin", area: "/admin",
     perks: [
-      ["💰", "Marketplace revenue and commission earnings"],
-      ["📦", "Every order across all farms"],
+      ["💰", "Commission earnings: 10% of every sale"],
+      ["📦", "Every sale across all farms"],
       ["🧺", "Products, stock and featured listings"],
       ["👥", "Farmers and customers in one place"],
     ],

@@ -64,7 +64,7 @@ export function ShopProvider({ children }) {
   return (
     <ShopContext.Provider value={{
       cart, addToCart, updateQty, removeFromCart, clearCart, cartCount, cartTotal,
-      wishlist, toggleWishlist, recent, addRecent, toast, finalPrice,
+      wishlist, toggleWishlist, recent, addRecent, toast, finalPrice, ready,
     }}>
       {children}
       <div className="fixed bottom-5 right-5 z-[100] space-y-2">

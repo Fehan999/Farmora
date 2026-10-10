@@ -4,6 +4,17 @@ import { usePathname, useSearchParams } from "next/navigation";
 
 const reducedMotion = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
+export function startNav(href) {
+  if (typeof window === "undefined") return;
+  if (href) {
+    try {
+      const url = new URL(href, window.location.href);
+      if (url.origin === window.location.origin && url.pathname === window.location.pathname && url.search === window.location.search) return;
+    } catch {}
+  }
+  window.dispatchEvent(new Event("farmora:navstart"));
+}
+
 export default function RouteProgress() {
   const pathname = usePathname();
   const search = useSearchParams()?.toString() || "";

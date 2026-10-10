@@ -2,6 +2,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import SafeImage from "@/components/SafeImage";
+import Spinner from "@/components/Spinner";
 import { useShop } from "@/context/ShopContext";
 import { money, SHIPPING_FEE, SHIPPING_FREE_OVER } from "@/lib/format";
 import { PRODUCTS } from "@/data/seed";
@@ -11,7 +12,7 @@ const PICKS = ["p12", "p1", "p21"].map((id) => PRODUCTS.find((p) => p.id === id)
 const TILT = ["left-0 -rotate-6", "left-14 z-10 -translate-y-2", "left-28 rotate-6"];
 
 export default function Cart() {
-  const { cart, updateQty, removeFromCart, cartTotal, clearCart } = useShop();
+  const { cart, updateQty, removeFromCart, cartTotal, clearCart, ready } = useShop();
   const shipping = cartTotal >= SHIPPING_FREE_OVER || cartTotal === 0 ? 0 : SHIPPING_FEE;
   const progress = Math.min(100, (cartTotal / SHIPPING_FREE_OVER) * 100);
 
@@ -19,7 +20,9 @@ export default function Cart() {
     <>
       <PageHeader title="Your cart" subtitle="Review your basket of farm-fresh goodies before checkout." crumbs={[{ label: "Cart" }]} image={PAGE_IMAGES.cart} imageAlt="Freshly baked bread from a farm bakery" />
       <div className="container-x py-10">
-        {cart.length === 0 ? (
+        {!ready ? (
+          <div className="grid min-h-[40vh] place-items-center py-16"><Spinner size={48} label="Loading your basket..." /></div>
+        ) : cart.length === 0 ? (
           <div className="card py-16 text-center">
             <div className="relative mx-auto h-28 w-56">
               {PICKS.map((p, n) => (

@@ -1,18 +1,25 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
 import SafeImage from "@/components/SafeImage";
 import Avatar from "@/components/Avatar";
 import Stars from "@/components/Stars";
+import Spinner from "@/components/Spinner";
 import useData from "@/components/useData";
 import { getFarmer, getProducts } from "@/lib/db";
+import { FARMERS, PRODUCTS } from "@/data/seed";
 
 export default function FarmerProfile() {
   const { id } = useParams();
-  const { data } = useData(async () => ({ farmer: await getFarmer(id), products: (await getProducts()).filter((p) => p.farmerId === id) }), [id]);
+  const initial = useMemo(() => {
+    const seeded = FARMERS.find((f) => f.id === id);
+    return seeded ? { farmer: seeded, products: PRODUCTS.filter((p) => p.farmerId === id) } : undefined;
+  }, [id]);
+  const { data } = useData(async () => ({ farmer: await getFarmer(id), products: (await getProducts()).filter((p) => p.farmerId === id) }), [id], initial);
 
-  if (!data) return <div className="container-x py-24 text-center text-gray-500">Loading...</div>;
+  if (!data) return <div className="container-x grid min-h-[60vh] place-items-center py-24"><Spinner label="Loading farm..." /></div>;
   const { farmer, products } = data;
   const photos = products.filter((p) => p.image);
   const cover = farmer?.cover || photos[0]?.image || "";
@@ -40,7 +47,7 @@ export default function FarmerProfile() {
           </div>
           <div className="grid grid-cols-3 gap-3 text-center">
             {[[products.length, "Products"], [farmer.acres, "Acres"], [new Date().getFullYear() - farmer.since, "Years"]].map(([v, l]) => (
-              <div key={l} className="rounded-xl bg-brand-50 px-4 py-3"><p className="text-2xl font-bold text-brand-700">{v}</p><p className="text-xs text-gray-500">{l}</p></div>
+              <div key={l} className="rounded-xl bg-brand-50 px-4 py-3"><p suppressHydrationWarning className="text-2xl font-bold text-brand-700">{v}</p><p className="text-xs text-gray-500">{l}</p></div>
             ))}
           </div>
         </div>

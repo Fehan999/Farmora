@@ -20,7 +20,7 @@ export default function Forgot() {
     <AuthShell title="Reset password" subtitle="We'll email you a link to reset it.">
       <form onSubmit={submit} className="space-y-4">
         {msg && <p className={`rounded-xl p-3 text-sm ${msg.ok ? "bg-brand-50 text-brand-700" : "bg-red-50 text-red-700"}`}>{msg.text}</p>}
-        <div><label className="label">Email</label><input type="email" required className="input" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+        <div><label htmlFor="forgot-password-email" className="label">Email</label><input id="forgot-password-email" type="email" required className="input" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
         <button className="btn-primary w-full py-3">Send reset link</button>
       </form>
       <p className="mt-6 text-center text-sm"><Link href="/login" className="text-brand-700 hover:underline">← Back to sign in</Link></p>

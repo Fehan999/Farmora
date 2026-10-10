@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthShell from "@/components/AuthShell";
 import DemoButton, { Spinner } from "@/components/DemoButton";
+import { startNav } from "@/components/RouteProgress";
 import { ROLES, destinationFor, normalizeRole, safeNext } from "@/components/authRoles";
 import { useAuth } from "@/context/AuthContext";
 import { authMessage } from "@/lib/authErrors";
@@ -25,7 +26,9 @@ function Register({ roleParam = null, nextParam = null }) {
     setBusy(true); setError("");
     try {
       await register(form);
-      router.push(destinationFor(form.role, next));
+      const to = destinationFor(form.role, next);
+      startNav(to);
+      router.push(to);
     } catch (err) {
       setError(authMessage(err)); setBusy(false);
     }

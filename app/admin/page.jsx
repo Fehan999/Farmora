@@ -8,6 +8,7 @@ import BarChart from "@/components/BarChart";
 import SafeImage from "@/components/SafeImage";
 import Avatar from "@/components/Avatar";
 import ProductForm from "@/components/ProductForm";
+import Spinner from "@/components/Spinner";
 import SaleDetails, { SaleStatus } from "@/components/SaleDetails";
 import useData from "@/components/useData";
 import { useShop } from "@/context/ShopContext";
@@ -81,7 +82,7 @@ function Admin() {
     };
   }, [data]);
 
-  if (!data || !stats) return <div className="container-x py-24 text-center text-gray-500">Loading dashboard...</div>;
+  if (!data || !stats) return <div className="container-x grid min-h-[60vh] place-items-center py-24"><Spinner label="Loading dashboard..." /></div>;
   const { products, orders, users, messages } = data;
   const farmerName = (id) => stats.farmerMap.get(id)?.name || "—";
   const match = (s) => s.toLowerCase().includes(q.toLowerCase());
@@ -117,8 +118,15 @@ function Admin() {
       {tab === "overview" && (
         <div className="space-y-6">
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <StatCard icon="💰" label={`Platform earnings (${FEE_PCT}%)`} value={money(stats.commission)} hint={`From ${stats.valid.length} completed sales`} />
-            <StatCard icon="🧾" label="Gross sales" value={money(stats.gross)} tone="blue" hint="Product value of completed sales" />
+            <div className="card flex items-center gap-4 border-brand-700 bg-gradient-to-br from-brand-600 to-brand-800 p-5 text-white shadow-md ring-2 ring-brand-200">
+              <span className="grid h-12 w-12 place-items-center rounded-xl bg-white/15 text-2xl">💰</span>
+              <div>
+                <p className="text-sm font-medium text-brand-100">Platform earnings ({FEE_PCT}%)</p>
+                <p className="text-3xl font-bold">{money(stats.commission)}</p>
+                <p className="text-xs text-brand-100">Farmora revenue from {stats.valid.length} completed sales</p>
+              </div>
+            </div>
+            <StatCard icon="🧾" label="Sales volume" value={money(stats.gross)} tone="blue" hint="Total product value · not platform revenue" />
             <StatCard icon="🧑‍🌾" label={`Paid to farmers (${PAYOUT_PCT}%)`} value={money(stats.payout)} tone="earth" hint={`${data.farmers.length} farms`} />
             <StatCard icon="💵" label="Sales" value={stats.valid.length} tone="blue" hint={`${orders.length - stats.valid.length} cancelled`} />
             <StatCard icon="👥" label="Users" value={users.length} tone="earth" hint={`${users.filter((u) => u.role === "farmer").length} farmers · ${users.filter((u) => u.role === "buyer").length} buyers`} />
@@ -215,7 +223,7 @@ function Admin() {
         <div className="space-y-4">
           <div className="flex flex-wrap justify-between gap-3">
             <input className="input max-w-xs" placeholder="Search products..." value={q} onChange={(e) => setQ(e.target.value)} />
-            <button onClick={() => setEditing({ farmerId: "f1" })} className="btn-primary">＋ Add product</button>
+            <button onClick={() => setEditing({ farmerId: data.farmers[0]?.id || "f1" })} className="btn-primary">＋ Add product</button>
           </div>
           <Table head={["Product", "Farm", "Price", "Stock", "Sold", "Featured", "Status", ""]}>
             {products.filter((p) => match(p.name)).map((p) => (
@@ -314,8 +322,12 @@ function Admin() {
       {viewing && <SaleDetails order={viewing} farmerName={farmerName} onClose={() => setViewing(null)} />}
 
       {editing && (
-        <ProductForm initial={editing} onClose={() => setEditing(null)}
-          onSave={(p) => act(async () => { await saveProduct({ status: "approved", rating: 5, reviewsCount: 0, sold: 0, ...p }); setEditing(null); }, "Product saved")} />
+        <ProductForm initial={editing} farms={data.farmers} onClose={() => setEditing(null)}
+          onSave={(p) => act(async () => {
+            const farm = stats.farmerMap.get(p.farmerId);
+            await saveProduct({ status: "approved", rating: 5, reviewsCount: 0, sold: 0, ...p, ...(farm ? { farmerName: farm.name } : {}) });
+            setEditing(null);
+          }, "Product saved")} />
       )}
     </DashboardShell>
   );

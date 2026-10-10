@@ -1,14 +1,21 @@
 import SafeImage from "./SafeImage";
 import Logo from "./Logo";
 import { SITE_IMAGES } from "@/data/images";
+import { CATEGORIES } from "@/data/seed";
 
 const POINTS = ["🌱 Fresh from local farms", "🤝 Fair prices for growers", "🔒 Secure checkout"];
+
+const CATEGORY_IMAGE = CATEGORIES.map((c) => c.image).find(Boolean) || "";
+const PANEL_IMAGE = SITE_IMAGES.auth || CATEGORY_IMAGE;
+const PANEL_FALLBACK = PANEL_IMAGE === CATEGORY_IMAGE ? undefined : CATEGORY_IMAGE || undefined;
 
 export default function AuthShell({ title, subtitle, top, children }) {
   return (
     <div className="grid min-h-[calc(100vh-100px)] lg:grid-cols-2">
-      <div className="relative hidden overflow-hidden bg-brand-900 lg:block">
-        <SafeImage src={SITE_IMAGES.auth} alt="Fresh produce harvested on a local farm" priority sizes="(min-width: 1024px) 50vw, 1px" className="absolute inset-0 h-full w-full object-cover" />
+      <div className="relative hidden overflow-hidden bg-gradient-to-br from-brand-700 via-brand-800 to-brand-900 lg:block">
+        {PANEL_IMAGE && (
+          <SafeImage src={PANEL_IMAGE} fallbackSrc={PANEL_FALLBACK} alt="Fresh produce harvested on a local farm" priority sizes="(min-width: 1024px) 50vw, 1px" className="absolute inset-0 h-full w-full object-cover" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-brand-900/90 via-brand-900/40 to-brand-900/10" />
         <div className="absolute inset-0 flex flex-col justify-end p-12 text-white">
           <h2 className="font-display text-4xl font-bold leading-tight">From Local Farms<br />to Your Door.</h2>

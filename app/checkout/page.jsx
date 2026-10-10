@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import PageHeader from "@/components/PageHeader";
 import SafeImage from "@/components/SafeImage";
+import Spinner from "@/components/Spinner";
+import { startNav } from "@/components/RouteProgress";
 import { useShop } from "@/context/ShopContext";
 import { useAuth } from "@/context/AuthContext";
 import { createOrder } from "@/lib/db";
@@ -13,10 +15,53 @@ import { PAGE_IMAGES } from "@/data/images";
 
 const PICKS = ["p9", "p21", "p17"].map((id) => PRODUCTS.find((p) => p.id === id)).filter((p) => p?.image);
 const TILT = ["left-0 -rotate-6", "left-14 z-10 -translate-y-2", "left-28 rotate-6"];
+const LOGIN_HREF = "/login?role=buyer&next=/checkout";
+
+function Loading({ label }) {
+  return <div className="container-x grid min-h-[50vh] place-items-center py-24"><Spinner size={48} label={label} /></div>;
+}
+
+function EmptyCheckout() {
+  return (
+    <div className="container-x py-24 text-center">
+      <div className="relative mx-auto h-28 w-56">
+        {PICKS.map((p, n) => (
+          <SafeImage key={p.id} src={p.image} alt={p.name} sizes="112px" className={`absolute top-0 h-28 w-28 rounded-2xl border-4 border-white object-cover shadow-lg ${TILT[n]}`} />
+        ))}
+        <span className="absolute -bottom-3 left-1/2 z-20 grid h-11 w-11 -translate-x-1/2 place-items-center rounded-full bg-white text-2xl shadow-md">🧺</span>
+      </div>
+      <h1 className="mt-8 text-2xl font-bold">Nothing to check out</h1>
+      <p className="mt-1 text-gray-500">Your basket is empty. Add some fresh picks first.</p>
+      <Link href="/shop" className="btn-primary mt-6">Go shopping</Link>
+    </div>
+  );
+}
+
+function AdminNotice() {
+  return (
+    <div className="container-x py-24 text-center">
+      <div className="text-6xl">🛡️</div>
+      <h1 className="mt-4 text-2xl font-bold">Admins can't place orders</h1>
+      <p className="mx-auto mt-2 max-w-md text-gray-500">You're signed in with an admin account, which is for running the marketplace. Sign in as a customer to try checkout, or head back to your dashboard.</p>
+      <Link href="/admin" className="btn-primary mt-6">Go to admin dashboard</Link>
+    </div>
+  );
+}
 
 export default function Checkout() {
+  const { user, loading } = useAuth();
+  const { cart, ready } = useShop();
+  const [placed, setPlaced] = useState(false);
+
+  if (placed) return <Loading label="Opening your order..." />;
+  if (!ready || loading) return <Loading label="Loading your basket..." />;
+  if (user?.role === "admin") return <AdminNotice />;
+  if (cart.length === 0) return <EmptyCheckout />;
+  return <CheckoutForm user={user} onPlaced={() => setPlaced(true)} />;
+}
+
+function CheckoutForm({ user, onPlaced }) {
   const router = useRouter();
-  const { user } = useAuth();
   const { cart, cartTotal, clearCart, toast } = useShop();
   const [addr, setAddr] = useState({ fullName: user?.name || "", phone: user?.phone || "", street: "", city: "", zip: "", notes: "" });
   const [payment, setPayment] = useState("Card");
@@ -37,33 +82,25 @@ export default function Checkout() {
 
   async function placeOrder(e) {
     e.preventDefault();
-    if (!user) { router.push("/login?next=/checkout"); return; }
+    if (!user) { startNav(LOGIN_HREF); router.push(LOGIN_HREF); return; }
     if (payment === "Card" && card.number.replace(/\s/g, "").length < 12) { toast("Enter a valid card number (demo: 4242 4242 4242 4242)", "error"); return; }
     setBusy(true);
-    const order = await createOrder({
-      buyerId: user.uid, buyerName: addr.fullName, buyerEmail: user.email,
-      items: cart, farmerIds: [...new Set(cart.map((i) => i.farmerId))],
-      subtotal: cartTotal, discount, coupon, shipping, tax, total,
-      address: addr, payment: payment === "Card" ? `Card •••• ${card.number.slice(-4)}` : payment,
-    });
-    clearCart();
-    router.push(`/orders/${order.id}?new=1`);
-  }
-
-  if (cart.length === 0) {
-    return (
-      <div className="container-x py-24 text-center">
-        <div className="relative mx-auto h-28 w-56">
-          {PICKS.map((p, n) => (
-            <SafeImage key={p.id} src={p.image} alt={p.name} sizes="112px" className={`absolute top-0 h-28 w-28 rounded-2xl border-4 border-white object-cover shadow-lg ${TILT[n]}`} />
-          ))}
-          <span className="absolute -bottom-3 left-1/2 z-20 grid h-11 w-11 -translate-x-1/2 place-items-center rounded-full bg-white text-2xl shadow-md">🧺</span>
-        </div>
-        <h1 className="mt-8 text-2xl font-bold">Nothing to check out</h1>
-        <p className="mt-1 text-gray-500">Your basket is empty. Add some fresh picks first.</p>
-        <Link href="/shop" className="btn-primary mt-6">Go shopping</Link>
-      </div>
-    );
+    try {
+      const order = await createOrder({
+        buyerId: user.uid, buyerName: addr.fullName, buyerEmail: user.email,
+        items: cart, farmerIds: [...new Set(cart.map((i) => i.farmerId))],
+        subtotal: cartTotal, discount, coupon, shipping, tax, total,
+        address: addr, payment: payment === "Card" ? `Card •••• ${card.number.slice(-4)}` : payment,
+      });
+      const to = `/orders/${order.id}?new=1`;
+      onPlaced();
+      startNav(to);
+      router.push(to);
+      clearCart();
+    } catch {
+      setBusy(false);
+      toast("Could not place your order. Please try again.", "error");
+    }
   }
 
   return (
@@ -72,17 +109,17 @@ export default function Checkout() {
       <form onSubmit={placeOrder} className="container-x grid gap-8 py-10 lg:grid-cols-[1fr_380px]">
         <div className="space-y-6">
           {!user && (
-            <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">You need an account to place an order. <Link href="/login?next=/checkout" className="font-semibold underline">Sign in</Link> or try a demo buyer account.</div>
+            <div className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">You need an account to place an order. <Link href={LOGIN_HREF} className="font-semibold underline">Sign in</Link> or <Link href={LOGIN_HREF} className="font-semibold underline">try the demo customer account</Link>.</div>
           )}
           <div className="card p-6">
             <h2 className="mb-4 text-lg font-semibold">1. Delivery address</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div><label className="label">Full name</label><input required className="input" value={addr.fullName} onChange={(e) => setAddr({ ...addr, fullName: e.target.value })} /></div>
-              <div><label className="label">Phone</label><input required className="input" value={addr.phone} onChange={(e) => setAddr({ ...addr, phone: e.target.value })} /></div>
-              <div className="sm:col-span-2"><label className="label">Street address</label><input required className="input" value={addr.street} onChange={(e) => setAddr({ ...addr, street: e.target.value })} /></div>
-              <div><label className="label">City</label><input required className="input" value={addr.city} onChange={(e) => setAddr({ ...addr, city: e.target.value })} /></div>
-              <div><label className="label">ZIP code</label><input required className="input" value={addr.zip} onChange={(e) => setAddr({ ...addr, zip: e.target.value })} /></div>
-              <div className="sm:col-span-2"><label className="label">Delivery notes (optional)</label><textarea className="input" value={addr.notes} onChange={(e) => setAddr({ ...addr, notes: e.target.value })} /></div>
+              <div><label htmlFor="checkout-full-name" className="label">Full name</label><input id="checkout-full-name" required className="input" value={addr.fullName} onChange={(e) => setAddr({ ...addr, fullName: e.target.value })} /></div>
+              <div><label htmlFor="checkout-phone" className="label">Phone</label><input id="checkout-phone" required className="input" value={addr.phone} onChange={(e) => setAddr({ ...addr, phone: e.target.value })} /></div>
+              <div className="sm:col-span-2"><label htmlFor="checkout-street-address" className="label">Street address</label><input id="checkout-street-address" required className="input" value={addr.street} onChange={(e) => setAddr({ ...addr, street: e.target.value })} /></div>
+              <div><label htmlFor="checkout-city" className="label">City</label><input id="checkout-city" required className="input" value={addr.city} onChange={(e) => setAddr({ ...addr, city: e.target.value })} /></div>
+              <div><label htmlFor="checkout-zip-code" className="label">ZIP code</label><input id="checkout-zip-code" required className="input" value={addr.zip} onChange={(e) => setAddr({ ...addr, zip: e.target.value })} /></div>
+              <div className="sm:col-span-2"><label htmlFor="checkout-delivery-notes-optional" className="label">Delivery notes (optional)</label><textarea id="checkout-delivery-notes-optional" className="input" value={addr.notes} onChange={(e) => setAddr({ ...addr, notes: e.target.value })} /></div>
             </div>
           </div>
           <div className="card p-6">
@@ -96,9 +133,9 @@ export default function Checkout() {
             </div>
             {payment === "Card" && (
               <div className="mt-4 grid gap-4 sm:grid-cols-3">
-                <div className="sm:col-span-3"><label className="label">Card number</label><input className="input" placeholder="4242 4242 4242 4242" value={card.number} onChange={(e) => setCard({ ...card, number: e.target.value })} /></div>
-                <div><label className="label">Expiry</label><input className="input" placeholder="12/28" value={card.exp} onChange={(e) => setCard({ ...card, exp: e.target.value })} /></div>
-                <div><label className="label">CVC</label><input className="input" placeholder="123" value={card.cvc} onChange={(e) => setCard({ ...card, cvc: e.target.value })} /></div>
+                <div className="sm:col-span-3"><label htmlFor="checkout-card-number" className="label">Card number</label><input id="checkout-card-number" className="input" placeholder="4242 4242 4242 4242" value={card.number} onChange={(e) => setCard({ ...card, number: e.target.value })} /></div>
+                <div><label htmlFor="checkout-expiry" className="label">Expiry</label><input id="checkout-expiry" className="input" placeholder="12/28" value={card.exp} onChange={(e) => setCard({ ...card, exp: e.target.value })} /></div>
+                <div><label htmlFor="checkout-cvc" className="label">CVC</label><input id="checkout-cvc" className="input" placeholder="123" value={card.cvc} onChange={(e) => setCard({ ...card, cvc: e.target.value })} /></div>
                 <p className="self-end text-xs text-gray-400">Demo checkout, no real charge is made.</p>
               </div>
             )}

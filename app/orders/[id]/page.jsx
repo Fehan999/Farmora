@@ -3,27 +3,32 @@ import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import DeliveryTracker from "@/components/DeliveryTracker";
+import RequireRole from "@/components/RequireRole";
 import OrderStatusBadge from "@/components/OrderStatusBadge";
 import SafeImage from "@/components/SafeImage";
 import useData from "@/components/useData";
-import { getOrder, updateOrder } from "@/lib/db";
+import { getOrder, updateOrder, ownsOrder, buyerIdsFor } from "@/lib/db";
 import { deliveryStatus } from "@/lib/delivery";
 import { money, dateTime } from "@/lib/format";
 import { useShop } from "@/context/ShopContext";
+import { useAuth } from "@/context/AuthContext";
 import { PAGE_IMAGES, SITE_IMAGES } from "@/data/images";
 
 function OrderDetail() {
   const { id } = useParams();
   const params = useSearchParams();
   const { toast } = useShop();
-  const { data: order, loading, reload } = useData(() => getOrder(id), [id]);
+  const { user } = useAuth();
+  const { data, loading, reload } = useData(() => getOrder(id), [id]);
+  const order = data && ownsOrder(user, data) ? data : null;
 
-  if (loading && !order) return <div className="container-x py-24 text-center text-gray-500">Loading...</div>;
+  if (loading && !data) return <div className="container-x py-24 text-center text-gray-500">Loading...</div>;
   if (!order) return <div className="container-x py-24 text-center"><h1 className="text-2xl font-bold">Order not found</h1><Link href="/orders" className="btn-primary mt-4">My orders</Link></div>;
 
   const s = deliveryStatus(order);
   const banner = SITE_IMAGES.heroMain || PAGE_IMAGES.orders || order.items.find((i) => i.image)?.image || "";
   const canCancel = !s.cancelled && s.stageIndex < 2;
+  const asSeller = user.role === "farmer" && !buyerIdsFor(user.uid).includes(order.buyerId);
 
   async function cancel() {
     if (!confirm("Cancel this order?")) return;
@@ -45,7 +50,7 @@ function OrderDetail() {
       )}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href="/orders" className="text-sm text-gray-500 hover:text-brand-700">← All orders</Link>
+          <Link href={asSeller ? "/farmer/dashboard" : "/orders"} className="text-sm text-gray-500 hover:text-brand-700">{asSeller ? "← Farmer dashboard" : "← All orders"}</Link>
           <h2 className="mt-1 text-2xl font-bold">Order {order.id}</h2>
           <p className="text-sm text-gray-500">Placed {dateTime(order.createdAt)}</p>
         </div>
@@ -89,5 +94,5 @@ function OrderDetail() {
 }
 
 export default function OrderPage() {
-  return <Suspense><OrderDetail /></Suspense>;
+  return <RequireRole roles={["buyer", "farmer"]}><Suspense><OrderDetail /></Suspense></RequireRole>;
 }

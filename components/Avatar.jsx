@@ -42,6 +42,7 @@ export default function Avatar({ src, name = "", className = "h-10 w-10", rounde
       srcSet={srcSet}
       sizes={srcSet ? sizes : undefined}
       alt={name || "User avatar"}
+      loading="lazy"
       decoding="async"
       onError={() => setFailed(src)}
       className={`shrink-0 bg-brand-50 object-cover ${rounded} ${className}`}

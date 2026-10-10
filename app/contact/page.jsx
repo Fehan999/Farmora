@@ -40,11 +40,11 @@ export default function Contact() {
         <form onSubmit={submit} className="card space-y-4 p-6">
           {sent && <p className="rounded-xl bg-brand-50 p-3 text-sm text-brand-700">Thanks! Your message has been sent. We'll reply within 24 hours.</p>}
           <div className="grid gap-4 sm:grid-cols-2">
-            <div><label className="label">Name</label><input required className="input" value={form.name} onChange={set("name")} /></div>
-            <div><label className="label">Email</label><input required type="email" className="input" value={form.email} onChange={set("email")} /></div>
+            <div><label htmlFor="contact-name" className="label">Name</label><input id="contact-name" required className="input" value={form.name} onChange={set("name")} /></div>
+            <div><label htmlFor="contact-email" className="label">Email</label><input id="contact-email" required type="email" className="input" value={form.email} onChange={set("email")} /></div>
           </div>
-          <div><label className="label">Subject</label><input required className="input" value={form.subject} onChange={set("subject")} /></div>
-          <div><label className="label">Message</label><textarea required className="input h-40" value={form.message} onChange={set("message")} /></div>
+          <div><label htmlFor="contact-subject" className="label">Subject</label><input id="contact-subject" required className="input" value={form.subject} onChange={set("subject")} /></div>
+          <div><label htmlFor="contact-message" className="label">Message</label><textarea id="contact-message" required className="input h-40" value={form.message} onChange={set("message")} /></div>
           <button className="btn-primary">Send message</button>
         </form>
       </div>

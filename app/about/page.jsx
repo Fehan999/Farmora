@@ -66,7 +66,7 @@ export default function About() {
         </div>
         <div className="mt-16 rounded-3xl bg-brand-800 p-10 text-center text-white">
           <p className="text-sm uppercase tracking-widest text-brand-300">The person behind Farmora</p>
-          <h3 className="mt-2 font-display text-3xl font-bold">Designed & Developed by Ehan Siddique</h3>
+          <h3 className="mt-2 font-display text-3xl font-bold">Designed & Developed by <a href="https://github.com/Fehan999" target="_blank" rel="author noopener" className="text-earth-400 underline decoration-earth-400/40 underline-offset-4 hover:decoration-earth-400">Ehan Siddique</a></h3>
           <p className="mx-auto mt-3 max-w-xl text-brand-100">Built with Next.js, React, Tailwind CSS, Firebase and Supabase as a full-stack marketplace connecting farmers and families.</p>
         </div>
       </div>
