@@ -6,6 +6,7 @@ import Stars from "@/components/Stars";
 import useData from "@/components/useData";
 import { getProducts, getFarmers } from "@/lib/db";
 import { CATEGORIES, REVIEWS } from "@/data/seed";
+import { SITE_IMAGES } from "@/data/images";
 
 export default function Home() {
   const { data } = useData(async () => {
@@ -39,8 +40,8 @@ export default function Home() {
           </div>
           <div className="relative hidden lg:block">
             <div className="grid grid-cols-2 gap-4">
-              <SafeImage src="https://loremflickr.com/500/600/vegetables?lock=301" className="h-80 w-full rounded-3xl object-cover shadow-2xl" />
-              <SafeImage src="https://loremflickr.com/500/600/farmer?lock=302" className="mt-12 h-80 w-full rounded-3xl object-cover shadow-2xl" />
+              <SafeImage src={SITE_IMAGES.heroMain} alt="Fresh vegetables from local farms" priority sizes="(max-width: 1024px) 0px, 300px" className="h-80 w-full rounded-3xl object-cover shadow-2xl" />
+              <SafeImage src={SITE_IMAGES.heroSecondary} alt="Farmer holding fresh harvest" priority sizes="(max-width: 1024px) 0px, 300px" className="mt-12 h-80 w-full rounded-3xl object-cover shadow-2xl" />
             </div>
             <div className="absolute -bottom-4 left-8 flex items-center gap-3 rounded-2xl bg-white p-4 text-gray-800 shadow-xl">
               <span className="text-3xl">🚚</span>
@@ -97,7 +98,7 @@ export default function Home() {
           <div className="grid grid-cols-2 gap-3 p-6">
             {deals.map((p) => (
               <Link key={p.id} href={`/product/${p.id}`} className="relative overflow-hidden rounded-2xl bg-white">
-                <SafeImage src={p.image} alt={p.name} className="h-32 w-full object-cover" />
+                <SafeImage src={p.image} alt={p.name} sizes="(max-width: 1024px) 45vw, 300px" className="h-32 w-full object-cover" />
                 <span className="badge absolute left-2 top-2 bg-red-500 text-white">-{p.discount}%</span>
                 <p className="truncate px-3 py-2 text-sm font-semibold">{p.name}</p>
               </Link>
@@ -128,9 +129,9 @@ export default function Home() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {farmers.slice(0, 4).map((f) => (
             <Link key={f.id} href={`/farmers/${f.id}`} className="card overflow-hidden transition hover:shadow-lg">
-              <SafeImage src={f.cover} className="h-28 w-full object-cover" />
+              <SafeImage src={f.cover} alt={f.name} sizes="(max-width: 640px) 90vw, 300px" className="h-28 w-full object-cover" />
               <div className="-mt-8 px-5 pb-5">
-                <SafeImage src={f.avatar} className="h-16 w-16 rounded-full border-4 border-white object-cover" />
+                <SafeImage src={f.avatar} alt={f.owner} sizes="64px" className="h-16 w-16 rounded-full border-4 border-white object-cover" />
                 <p className="mt-2 font-semibold">{f.name} {f.verified && <span className="text-brand-600">✔</span>}</p>
                 <p className="text-xs text-gray-500">📍 {f.location}</p>
                 <div className="mt-2 flex items-center gap-1 text-xs"><Stars value={f.rating} size="text-xs" /> {f.rating}</div>
@@ -149,7 +150,7 @@ export default function Home() {
                 <Stars value={r.rating} />
                 <p className="mt-3 text-gray-600">“{r.text}”</p>
                 <div className="mt-4 flex items-center gap-3">
-                  <SafeImage src={r.avatar} className="h-10 w-10 rounded-full object-cover" />
+                  <SafeImage src={r.avatar} alt={r.name} sizes="40px" className="h-10 w-10 rounded-full object-cover" />
                   <p className="text-sm font-semibold">{r.name}</p>
                 </div>
               </div>

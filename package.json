@@ -5,7 +5,7 @@
   "description": "Farmora - From Local Farms to Your Door",
   "author": "Ehan Siddique",
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start"
   },

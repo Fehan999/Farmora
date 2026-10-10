@@ -14,7 +14,7 @@ export default function Categories() {
       <div className="container-x grid gap-6 py-10 sm:grid-cols-2 lg:grid-cols-4">
         {CATEGORIES.map((c) => (
           <Link key={c.slug} href={`/shop?category=${c.slug}`} className="group card relative overflow-hidden">
-            <SafeImage src={c.image} alt={c.name} className="h-56 w-full object-cover transition duration-500 group-hover:scale-110" />
+            <SafeImage src={c.image} alt={c.name} sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 300px" className="h-56 w-full object-cover transition duration-500 group-hover:scale-110" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
             <div className="absolute bottom-0 p-5 text-white">
               <span className="text-3xl">{c.icon}</span>

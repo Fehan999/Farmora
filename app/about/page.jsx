@@ -1,6 +1,7 @@
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import SafeImage from "@/components/SafeImage";
+import { SITE_IMAGES } from "@/data/images";
 
 export const metadata = { title: "About | Farmora" };
 
@@ -10,7 +11,7 @@ export default function About() {
       <PageHeader title="Our story" subtitle="We started Farmora to shorten the distance between the people who grow food and the people who eat it." crumbs={[{ label: "About" }]} />
       <div className="container-x py-14">
         <div className="grid items-center gap-10 lg:grid-cols-2">
-          <SafeImage src="https://loremflickr.com/800/600/farmer,market?lock=501" className="h-96 w-full rounded-3xl object-cover shadow-lg" />
+          <SafeImage src={SITE_IMAGES.about} alt="Farmers market stall" priority sizes="(max-width: 1024px) 100vw, 600px" className="h-96 w-full rounded-3xl object-cover shadow-lg" />
           <div className="space-y-4 text-gray-600">
             <h2 className="font-display text-3xl font-bold text-brand-900">Fresh food, fair trade, short journeys</h2>
             <p>Most supermarket produce travels over 1,500 miles before reaching your plate. Farmora flips that model: farmers list what they harvest, you buy directly from them, and everything arrives within 3 days.</p>
