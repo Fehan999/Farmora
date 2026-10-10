@@ -225,7 +225,7 @@ async function capture(browser, shot, cart) {
     const headings = await page.locator("h1").allInnerTexts().catch(() => []);
     const blocked = headings.find((h) => /access restricted|not found/i.test(h));
     if (blocked) notes.push(`page heading says "${blocked.trim()}"`);
-    await page.screenshot({ path: path.join(OUT_DIR, `${shot.name}.png`), fullPage: !mobile, animations: "disabled" });
+    await page.screenshot({ path: path.join(OUT_DIR, `${shot.name}.jpg`), type: "jpeg", quality: 88, fullPage: !mobile, animations: "disabled" });
     if (errors.length) notes.push(`${errors.length} page error(s), first: ${errors[0]}`);
     return notes;
   } finally {
@@ -242,13 +242,13 @@ async function capturePages(browser, cart) {
   }
   const results = [];
   for (const [i, shot] of SHOTS.entries()) {
-    const label = `[${String(i + 1).padStart(2)}/${SHOTS.length}] ${shot.name}.png`;
+    const label = `[${String(i + 1).padStart(2)}/${SHOTS.length}] ${shot.name}.jpg`;
     const started = Date.now();
     try {
       const notes = await capture(browser, shot, cart);
       const secs = ((Date.now() - started) / 1000).toFixed(1);
       console.log(`${label}  ${shot.path}${shot.user ? ` as ${shot.user}` : ""}${shot.tab ? ` (${shot.tab} tab)` : ""}  ${secs}s`);
-      notes.forEach((n) => warn(`${shot.name}.png: ${n}`));
+      notes.forEach((n) => warn(`${shot.name}.jpg: ${n}`));
       results.push({ name: shot.name, ok: true, notes });
     } catch (err) {
       console.error(`${label}  FAILED  ${firstLine(err)}`);
@@ -376,8 +376,8 @@ function printSummary(pages, qa) {
   const ok = pages.filter((p) => p.ok);
   console.log("\nSummary");
   console.log(`  Pages:  ${ok.length}/${pages.length} saved to ${rel(OUT_DIR)}/`);
-  pages.filter((p) => !p.ok).forEach((p) => console.log(`    failed  ${p.name}.png  ${p.error}`));
-  pages.filter((p) => p.ok && p.notes.length).forEach((p) => console.log(`    check   ${p.name}.png  ${p.notes.join("; ")}`));
+  pages.filter((p) => !p.ok).forEach((p) => console.log(`    failed  ${p.name}.jpg  ${p.error}`));
+  pages.filter((p) => p.ok && p.notes.length).forEach((p) => console.log(`    check   ${p.name}.jpg  ${p.notes.join("; ")}`));
   if (qa) console.log(`  Photos: ${qa.total} checked, ${qa.bad} not OK, ${qa.empty} empty slots, ${qa.reused} reused ids, ${qa.sheets} contact sheet(s)`);
   else console.log("  Photos: image QA did not run");
 }
