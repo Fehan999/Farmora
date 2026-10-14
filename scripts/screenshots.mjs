@@ -30,7 +30,7 @@ const SHOTS = [
   { name: "farmer-profile", path: "/farmers/f2" },
   { name: "cart", path: "/cart", user: "buyer", cart: true },
   { name: "checkout", path: "/checkout", user: "buyer", cart: true },
-  { name: "order-tracking", path: "/orders/ORD-10241", user: "buyer" },
+  { name: "order-tracking", path: "/orders/ORD-2048193", user: "buyer", order: true },
   { name: "login", path: "/login" },
   { name: "register", path: "/register" },
   { name: "farmer-dashboard", path: "/farmer/dashboard", user: "farmer" },
@@ -42,7 +42,7 @@ const SHOTS = [
   { name: "faq", path: "/faq" },
   { name: "sell", path: "/sell" },
   { name: "track", path: "/track" },
-  { name: "orders", path: "/orders", user: "buyer" },
+  { name: "orders", path: "/orders", user: "buyer", order: true },
   { name: "account", path: "/account", user: "buyer" },
   { name: "wishlist", path: "/wishlist", user: "buyer", wishlist: true },
   { name: "farmer-products", path: "/farmer/dashboard", user: "farmer", tab: "My products" },
@@ -198,7 +198,7 @@ async function capture(browser, shot, cart) {
     locale: "en-US",
     colorScheme: "light",
   });
-  await context.addInitScript(({ session, items, wishlist }) => {
+  await context.addInitScript(({ session, items, wishlist, order }) => {
     try { sessionStorage.setItem("farmora_splash_seen", "1"); } catch {}
     try {
       if (session) localStorage.setItem("farmora_session", JSON.stringify(session));
@@ -206,8 +206,28 @@ async function capture(browser, shot, cart) {
       if (items) localStorage.setItem("farmora_cart", JSON.stringify(items));
       else localStorage.removeItem("farmora_cart");
       if (wishlist) localStorage.setItem("farmora_wishlist", JSON.stringify(wishlist));
+      if (order) {
+        const subtotal = order.items.reduce((s, i) => s + i.price * i.qty, 0);
+        const tax = subtotal * 0.05;
+        localStorage.setItem("farmora_orders", JSON.stringify([{
+          ...order,
+          farmerIds: [...new Set(order.items.map((i) => i.farmerId))],
+          subtotal, discount: 0, coupon: null, shipping: subtotal >= 50 ? 0 : 4.99, tax,
+          total: subtotal + (subtotal >= 50 ? 0 : 4.99) + tax,
+          createdAt: new Date(Date.now() - 30 * 36e5).toISOString(),
+        }]));
+      }
     } catch {}
-  }, { session: shot.user ? DEMO_USERS[shot.user] : null, items: shot.cart ? cart : null, wishlist: shot.wishlist ? ["p9", "p21", "p25", "p37"] : null });
+  }, {
+    session: shot.user ? DEMO_USERS[shot.user] : null,
+    items: shot.cart ? cart : null,
+    wishlist: shot.wishlist ? ["p9", "p21", "p25", "p37"] : null,
+    order: shot.order ? {
+      id: "ORD-2048193", status: "placed", buyerId: "demo-buyer", buyerName: "Emily Carter", buyerEmail: "buyer@farmora.demo",
+      items: cart, payment: "Card •••• 4242",
+      address: { fullName: "Emily Carter", phone: "+1 (212) 555-0101", street: "48 Orchard Street", city: "New York", zip: "10002", notes: "" },
+    } : null,
+  });
 
   const page = await context.newPage();
   const errors = [];
